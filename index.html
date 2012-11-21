@@ -37,7 +37,7 @@
 
 <h2>Credentials API</h2>
 
-<p>To start we need to create a working directory (replace  with a name of your choice).</p>
+<p>To start we need to create a working directory (replace <code>&lt;workdir&gt;</code> with a name of your choice).</p>
 
 <pre><code>$ mkdir &lt;workdir&gt;
 $ cd &lt;workdir&gt;
@@ -52,7 +52,7 @@ $ cd &lt;workdir&gt;
 <code>&lt;projectname&gt;.src.jar</code>: The sources of the project combined into a single archive.</li>
 <li>
 <code>&lt;projectname&gt;.dev.jar</code>: A combination of the above, which is convenient for developers.</li>
-</ul><h1>SCUBA</h1>
+</ul><h4>SCUBA</h4>
 
 <p>For the communication with the IRMA card we use the <a href="http://scuba.sf.net">SCUBA library</a> to provide a layer of abstraction.</p>
 
@@ -78,13 +78,14 @@ $ ant
 $ cd ..
 </code></pre>
 
-<h1>IRMA</h1>
+<h4>IRMA</h4>
 
 <pre><code>$ git clone https://github.com/credentials/irma_configuration.git
 $ git clone https://github.com/credentials/credentials_api.git
 </code></pre>
 
 <pre><code>$ cd credentials_api
+$ git checkout idemix_verify
 $ ln -s ../irma_configuration
 $ cp ../scuba/scuba.dev.jar ../idemix_library/idemix_library.dev.jar ../idemix_terminal/idemix_terminal.dev.jar lib
 $ ant
