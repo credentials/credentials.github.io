@@ -35,6 +35,62 @@
 
 <p>This page has just been created and will be under development for some time. In the end it will contain a guide/manual for developers to develop new IRMA applications/services or to integrate IRMA support into existing applications and services.</p>
 
+<h2>Credentials API</h2>
+
+<p>To start we need to create a working directory (replace  with a name of your choice).</p>
+
+<pre><code>$ mkdir &lt;workdir&gt;
+$ cd &lt;workdir&gt;
+</code></pre>
+
+<p>Within this working directory we will check out the various projects and set up the IRMA development environment. Most of the projects provide both Eclipse project files as well as Ant build files. When using the Ant build file, running the <code>ant</code> command, will produce three <code>.jar</code> files:</p>
+
+<ul>
+<li>
+<code>&lt;projectname&gt;.lib.jar</code> or <code>&lt;projectname&gt;.app.jar</code>: The binaries of the library or application. Applications can be run using the <code>java -jar &lt;projectname&gt;.app.jar</code> command.</li>
+<li>
+<code>&lt;projectname&gt;.src.jar</code>: The sources of the project combined into a single archive.</li>
+<li>
+<code>&lt;projectname&gt;.dev.jar</code>: A combination of the above, which is convenient for developers.</li>
+</ul><h1>SCUBA</h1>
+
+<p>For the communication with the IRMA card we use the <a href="http://scuba.sf.net">SCUBA library</a> to provide a layer of abstraction.</p>
+
+<pre><code>$ git clone https://github.com/credentials/scuba.git
+$ cd scuba
+$ ant
+$ cd ..
+</code></pre>
+
+<h1>Idemix</h1>
+
+<pre><code>$ git clone https://github.com/credentials/idemix_library.git
+$ git clone https://github.com/credentials/idemix_terminal.git
+</code></pre>
+
+<p>The next step is to prepare these sources. For this we first need to <a href="https://prime.inf.tu-dresden.de/idemix/">download the Idemix sources</a> from IBM and store them in the idemix_library created by the clone command. These sources need to be patched, hence the additional <code>ant prepare</code> command.</p>
+
+<pre><code>$ cd idemix_library
+$ ant prepare; ant
+$ cd ../idemix_terminal
+$ cp ../scuba/scuba.dev.jar ../idemix_library/idemix_library.dev.jar lib
+$ ant
+$ cd ..
+</code></pre>
+
+<h1>IRMA</h1>
+
+<pre><code>$ git clone https://github.com/credentials/irma_configuration.git
+$ git clone https://github.com/credentials/credentials_api.git
+</code></pre>
+
+<pre><code>$ cd credentials_api
+$ ln -s ../irma_configuration
+$ cp ../scuba/scuba.dev.jar ../idemix_library/idemix_library.dev.jar ../idemix_terminal/idemix_terminal.dev.jar lib
+$ ant
+$ cd ..
+</code></pre>
+
 <p>(Ignore anything below this.)</p>
 
 <pre><code>$ cd your_repo_root/repo_name
