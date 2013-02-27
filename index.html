@@ -43,7 +43,7 @@
 $ cd &lt;workdir&gt;
 </code></pre>
 
-<p>Within this working directory we will check out the various projects and set up the IRMA development environment. Most of the projects provide both Eclipse project files as well as Ant build files. When using the Ant build file, running the <code>ant</code> command, will produce three <code>.jar</code> files:</p>
+<p>Within this working directory we will check out the various projects and set up the IRMA development environment. Most of the projects provide both Eclipse project files as well as Ant build files. The eclipse project files are usually located in the <code>dev/eclipse</code> directory, so they should be copied to the project root before use. When using the Ant build file, running the <code>ant</code> command, will produce three <code>.jar</code> files:</p>
 
 <ul>
 <li>
@@ -62,7 +62,7 @@ $ ant
 $ cd ..
 </code></pre>
 
-<h1>Idemix</h1>
+<h4>Idemix</h4>
 
 <pre><code>$ git clone https://github.com/credentials/idemix_library.git
 $ git clone https://github.com/credentials/idemix_terminal.git
@@ -72,8 +72,10 @@ $ git clone https://github.com/credentials/idemix_terminal.git
 
 <pre><code>$ cd idemix_library
 $ ant prepare; ant
-$ cd ../idemix_terminal
-$ cp ../scuba/scuba.dev.jar ../idemix_library/idemix_library.dev.jar lib
+$ cd ../idemix_terminal/lib
+$ ln -s ../../scuba/scuba.dev.jar
+$ ln -s ../../idemix_library/idemix_library.dev.jar
+$ cd ..
 $ ant
 $ cd ..
 </code></pre>
@@ -82,40 +84,47 @@ $ cd ..
 
 <pre><code>$ git clone https://github.com/credentials/irma_configuration.git
 $ git clone https://github.com/credentials/credentials_api.git
+$ git clone https://github.com/credentials/credentials_idemix.git
 </code></pre>
 
-<pre><code>$ cd credentials_api
-$ git checkout idemix_verify
-$ ln -s ../irma_configuration
-$ cp ../scuba/scuba.dev.jar ../idemix_library/idemix_library.dev.jar ../idemix_terminal/idemix_terminal.dev.jar lib
+<p>The <code>irma_configuration</code> project contains the data structure used within the IRMA project by the credentials API. The actual API consists of two projects, <code>credentials_api</code> which contains the generic code and <code>credentials_idemix</code> which contains the Idemix specific instantiations of the API.</p>
+
+<pre><code>$ cd credentials_api/lib
+$ ln -s ../../scuba/scuba.dev.jar
+$ cd ..
 $ ant
 $ cd ..
 </code></pre>
 
-<p>(Ignore anything below this.)</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<pre><code>$ cd credentials_idemix/lib
+$ ln -s ../../scuba/scuba.dev.jar
+$ ln -s ../../idemix_library/idemix_library.dev.jar
+$ ln -s ../../idemix_terminal/idemix_terminal.dev.jar
+$ ln -s ../../credentials_api/credentials_api.dev.jar
+$ cd ..
+$ ant
+$ ln -s ../irma_configuration
+$ cd ..
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<h2>Developing an IRMA application</h2>
 
-<h3>Designer Templates</h3>
+<p>Now you can start developing your own IRMA application. The easiest for this is to create your own project directory <code>&lt;project&gt;</code> within the <code>&lt;workdir&gt;</code>. Within this directory add all relevant libraries and add the IRMA configuration such that the Credentials API can find it.</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<pre><code>$ mkdir &lt;project&gt;
+$ cd &lt;project&gt;
+$ ln -s ../irma_configuration
+$ mkdir lib; cd lib
+$ ln -s ../../scuba/scuba.dev.jar
+$ ln -s ../../idemix_library/idemix_library.dev.jar
+$ ln -s ../../idemix_terminal/idemix_terminal.dev.jar
+$ ln -s ../../credentials_api/credentials_api.dev.jar
+$ ln -s ../../credentials_idemix/credentials_idemix.dev.jar
+</code></pre>
 
 <h3>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>Having trouble with the Credentials API or IRMA development? Contact <a href="mailto:pim@cs.ru.nl">pim@cs.ru.nl</a> and we’ll help you sort it out.</p>
         </section>
 
         <footer>
