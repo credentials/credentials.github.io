@@ -72,11 +72,16 @@ $ git clone https://github.com/credentials/idemix_terminal.git
 
 <pre><code>$ cd idemix_library
 $ ant prepare; ant
-$ cd ../idemix_terminal/lib
+$ cp dev/eclipse/.project dev/eclipse/.classpath .
+$ cd ..
+</code></pre>
+
+<pre><code>$ cd idemix_terminal/lib
 $ ln -s ../../scuba/scuba.dev.jar
 $ ln -s ../../idemix_library/idemix_library.dev.jar
 $ cd ..
 $ ant
+$ cp dev/eclipse/.project dev/eclipse/.classpath .
 $ cd ..
 </code></pre>
 
@@ -93,6 +98,7 @@ $ git clone https://github.com/credentials/credentials_idemix.git
 $ ln -s ../../scuba/scuba.dev.jar
 $ cd ..
 $ ant
+$ cp dev/eclipse/.project dev/eclipse/.classpath .
 $ cd ..
 </code></pre>
 
@@ -103,6 +109,7 @@ $ ln -s ../../idemix_terminal/idemix_terminal.dev.jar
 $ ln -s ../../credentials_api/credentials_api.dev.jar
 $ cd ..
 $ ant
+$ cp dev/eclipse/.project dev/eclipse/.classpath .
 $ ln -s ../irma_configuration
 $ cd ..
 </code></pre>
