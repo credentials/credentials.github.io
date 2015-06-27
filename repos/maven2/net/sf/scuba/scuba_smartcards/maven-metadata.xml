@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>net.sf.scuba</groupId>
+  <artifactId>scuba_smartcards</artifactId>
+  <version>0.0.7-irma</version>
+  <versioning>
+    <versions>
+      <version>0.0.7-irma</version>
+    </versions>
+    <lastUpdated>20150627154753</lastUpdated>
+  </versioning>
+</metadata>
