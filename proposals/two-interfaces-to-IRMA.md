@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Proposal: two interfaces for IRMA tokens
+title: "Proposal: two interfaces for IRMA tokens"
 permalink: /proposals/two-interfaces-to-IRMA/
 ---
 
