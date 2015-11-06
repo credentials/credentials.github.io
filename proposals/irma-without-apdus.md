@@ -37,40 +37,33 @@ We can keep the smart cards in the game as follows:
 
 # The protocol
 
-We first focus on the protocol between the `irma_verification_server` and the token. The `irma_verification_server` is a web server listening at the following paths.
-
-* `/start`: accepts a POSTed json object like the following: `{session: "$session"}`. If `$token` is a valid session token (i.e., it has been assigned to a disclosure proof request at some point in the past (TODO: how?)), the server replies with a JSON object like the following:
+We first focus on the protocol between the `irma_verification_server` and the token. We first define a _disclosure proof request_ data type, that looks as follows.
 
 ```
 {
-    "session": "...",
-    "request": {
-        "nonce": "...",
-        "content": [
-            {
-                "label" = "Over 18",
-                "attributes" = [
-                    "MijnOverheid.ageLower.over18",
-                    "Thalia.age.over18"
-                ]
-            },
-            ...
-        ]
-    }
+    "nonce": "...",
+    "content": [
+        {
+            "label" = "Over 18",
+            "attributes" = [
+                "MijnOverheid.ageLower.over18",
+                "Thalia.age.over18"
+            ]
+        },
+        ...
+    ]
 }
 ```
-The `session` and the `nonce` are base64-encoded. Each entry of `content` is a disjunction of attributes, along with a label that can be shown to the user of the token. The disjunctions themselves should be ANDed together. Thus, this example asks for `MijnOverheid.ageLower.over18` or `Thalia.age.over18`.
 
-* `/abort` accepts a POSTed json object `{session: "$session"}`. If the session exists it is deleted, and the verifier is somehow informed of failure (TODO).
-* `/verify`: accepts a disclosure proof like the following.
+The `nonce` is optional (see below), and base64-encoded. Each entry of `content` is a disjunction of attributes, along with a label that can be shown to the user of the token. The disjunctions themselves should be ANDed together. Thus, this example asks for `MijnOverheid.ageLower.over18` or `Thalia.age.over18`.
 
-```
-{
-    "session": "...",
-    "proof": { ... }
-}
-```
-  where the `proof` is a serialized `ProofD` object. If the proof verifies, the attributes are sent to the verifier.
+
+The `irma_verification_server` is a web server listening at the following paths.
+
+* `POST /api/v1/verification/create`: accepts a disclosure proof requests (without a nonce), and returns a verification ID.
+* `GET /api/v1/verification/verificationID`: if `verificationID` is a valid session token (i.e., it has been assigned to a disclosure proof request at some point in the past), the server generates a nonce, puts this in the disclosure proof request associated to this session token, and returns this to the token.
+*  `POST /api/v1/verification/verificationID/proof`: if `verificationID` is a valid session token, this accepts a disclosure proof, which can be a serialized `ProofD` object. If the proof verifies, the attributes are sent to the verifier.
+*  `DELETE /api/v1/verification/verificationID`: If the session exists it is deleted, and the verifier is somehow informed of failure (TODO). Note that the token sends no reason, but this is what we want: the verifier does not need to learn if the user declined or if he does not have the required attributes.
 
 # To do
 
@@ -82,4 +75,3 @@ The `session` and the `nonce` are base64-encoded. Each entry of `content` is a d
 
 * When the `irma_verification_server` informs the verifier of the session token, it could perhaps return a URL to a pregenerated QR-code instead of letting the verifier generate this QR code.
 * If the `irma_verification_server` is a Java web application, i.e., a web server, how will it notify the verifier that the disclosure proof is ready? Perhaps the verifier is also a web server to which stuff can be POSTed, or the verifier will just have to poll the `irma_verification_server`?
-* Instead of posting the session token in the JSON objects, we could include it in the URLs at which the `irma_verification_server` listens. This way we don't need to have these tokens as a member in the Java classes corresponding to the JSON objects.
