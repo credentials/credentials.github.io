@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.irmacard.idemix</groupId>
+  <artifactId>idemix_terminal</artifactId>
+  <version>0.10.2</version>
+  <dependencies>
+    <dependency>
+      <groupId>net.sf.scuba</groupId>
+      <artifactId>scuba_smartcards</artifactId>
+      <version>0.0.7-irma</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.scuba</groupId>
+      <artifactId>scuba_sc_j2se</artifactId>
+      <version>0.0.7-irma</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.12</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.irmacard.credentials</groupId>
+      <artifactId>credentials_idemix</artifactId>
+      <version>0.10.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.2</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
