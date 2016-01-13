@@ -59,12 +59,13 @@ We first focus on the protocol between the `irma_verification_server` and the to
 
 The `nonce` and `context` are optional large integers. Each entry of `content` is a disjunction of attributes, along with a label that can be shown to the user of the token. The disjunctions themselves should be ANDed together. Thus, this example asks for `MijnOverheid.ageLower.over18` or `Thalia.age.over18`.
 
+Credential-only proofs are supported as follows. When one of the disjunctions contains an identifier of the form `issuer.credential` in the `attributes` list (for example, `MijnOverheid.ageLower`), the token should disclose none of the attributes contained in the credential apart from the metadata attribute. Since the metadata attribute is invisible to the user, this means that from the perspective of the user no attributes of the credential are disclosed, so that he only proves possession of the credential.
 
 The `irma_verification_server` is a web server listening at the following paths.
 
 *   `POST /api/v1/verification/create`: accepts requests from
     service providers of the following form:
-    
+
     ```json
     {
         "data": "...",
@@ -89,12 +90,14 @@ The `irma_verification_server` is a web server listening at the following paths.
         "attributes": {
             "MijnOverheid.ageLower.over18": "yes",
             "IRMAWiki.member.email": "stuifje@kuifje.nl",
-            "MijnOverheid.fullName.firstname": "Kuifje"
+            "MijnOverheid.fullName": "present"
         },
         "iat": 1448636631,
         "status": "VALID"
     }
     ```
+
+    The last entry in the `attributes` map is the response to a credential-only request: it indicates that the `fullName` credential issued by `MijnOverheid` is present on the token.
 
     The `status` is the same value that is sent to the token, and can be one of the following:
     - `VALID`: the proofs were valid
