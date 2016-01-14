@@ -18,14 +18,14 @@ The workflow for the user should be as follows. Suppose she wants to watch a vid
 * The user scans it,
 * Her token either informs her that she does not have the required credentials or attributes, or asks her for permission to disclose the attributes that IrmaTube asked for. If she consents, her token sends a disclosure proofs to IrmaTube.
 
-For code reusability and maintainability, it makes sense to split the logic of the website and the cryptography of verifying the credentials into separate projects. For that reason we have created the [`irma_verification_server`](https://github.com/credentials/irma_verification_server), which handles the cryptography and the communication with the token. This server sits between the service provider (the IrmaTube website in the example above) and the token, and generally works as follows.
+For code reusability and maintainability, it makes sense to split the logic of the website and the cryptography of verifying the credentials into separate projects. For that reason we have created the [`irma_api_server`](https://github.com/credentials/irma_api_server), which handles the cryptography and the communication with the token. This server sits between the service provider (the IrmaTube website in the example above) and the token, and generally works as follows.
 
 * It accepts a disclosure proof request from the service provider (i.e., the IrmaTube website), and returns a session token.
-* It is then the task of the service provider (the IrmaTube website) to inform the token of this session token and where to reach the `irma_verification_server` - for example by using a QR code.
-* The token connects to the `irma_verification_server`, sending the session token. The `irma_verification_server` informs the token of the required attributes. If the token does not possess these attributes, it aborts. Otherwise, it informs the user of the required attributes. If the user consents, the token creates the disclosure proof and sends it to `irma_verification_server`.
-* The `irma_verification_server` verifies the proof. If anything went wrong, it reports failure. Otherwise, it sends the attributes contained in the proof back to the service provider (the IrmaTube website), in the form of a signed JSON web token.
+* It is then the task of the service provider (the IrmaTube website) to inform the token of this session token and where to reach the `irma_api_server` - for example by using a QR code.
+* The token connects to the `irma_api_server`, sending the session token. The `irma_api_server` informs the token of the required attributes. If the token does not possess these attributes, it aborts. Otherwise, it informs the user of the required attributes. If the user consents, the token creates the disclosure proof and sends it to `irma_api_server`.
+* The `irma_api_server` verifies the proof. If anything went wrong, it reports failure. Otherwise, it sends the attributes contained in the proof back to the service provider (the IrmaTube website), in the form of a signed JSON web token.
 
-Notice that the IrmaTube website now does almost nothing, apart from showing the QR-code; the token itself is responsible for informing its owner about what is happening. However, the service provider should be aware of the (RSA) public key with which `irma_verification_server` signs the JSON web tokens, so that it can verify these.
+Notice that the IrmaTube website now does almost nothing, apart from showing the QR-code; the token itself is responsible for informing its owner about what is happening. However, the service provider should be aware of the (RSA) public key with which `irma_api_server` signs the JSON web tokens, so that it can verify these.
 
 # Smart cards
 
@@ -38,7 +38,7 @@ We can keep the smart cards in the game as follows:
 
 # The protocol
 
-We first focus on the protocol between the `irma_verification_server` and the token. We first define a _disclosure proof request_ data type, that looks as follows.
+We first focus on the protocol between the `irma_api_server` and the token. We first define a _disclosure proof request_ data type, that looks as follows.
 
 ```json
 {
@@ -61,7 +61,7 @@ The `nonce` and `context` are optional large integers. Each entry of `content` i
 
 Credential-only proofs are supported as follows. When one of the disjunctions contains an identifier of the form `issuer.credential` in the `attributes` list (for example, `MijnOverheid.ageLower`), the token should disclose none of the attributes contained in the credential apart from the metadata attribute. Since the metadata attribute is invisible to the user, this means that from the perspective of the user no attributes of the credential are disclosed, so that he only proves possession of the credential.
 
-The `irma_verification_server` is a web server listening at the following paths.
+The `irma_api_server` is a web server listening at the following paths.
 
 *   `POST /api/v2/verification`: accepts requests from
     service providers of the following form:
@@ -113,5 +113,5 @@ The `irma_verification_server` is a web server listening at the following paths.
 
 # To do
 
-* Authentication between `irma_verification_server` and the service provider
+* Authentication between `irma_api_server` and the service provider
 * Issuing
