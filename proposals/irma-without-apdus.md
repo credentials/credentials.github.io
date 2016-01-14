@@ -8,7 +8,7 @@ _**This document is still work in progress!**_
 
 Until recently the IRMA token has always been a smart card as it offers very high levels of security. This focus allowed the IRMA system to thrive, but also imposed some restrictions on the system. Recently, we have been exploring other token carriers, like a smart phone. To enable working with the smart card, the interface has always been defined in terms of APDUs (the low level commands that you send to your smart card). However, when working with other tokens (for example a smart phone), this is not a natural interface.
 
-We propose a new protocol here for requesting and sending disclosure proofs between the token and the verifier, based on JSON instead of on APDU's. For now we only consider disclosures; in the future we will expand to issuing.
+We propose a new protocol here for requesting and sending disclosure proofs between the token and the verifier, and issuing credentials to the token, based on JSON instead of on APDU's.
 
 # The setup
 
@@ -37,6 +37,8 @@ We can keep the smart cards in the game as follows:
 * The `irma_android_cardproxy` can scan QR codes like the cardemu can, but the desktop application will have to be notified of new sessions in some other way - perhaps the website explicitly shows the session key to the user, who can then copy and paste it into the desktop app.
 
 # The protocol
+
+## Verification
 
 We first focus on the protocol between the `irma_api_server` and the token. We first define a _disclosure proof request_ data type, that looks as follows.
 
@@ -111,7 +113,68 @@ The `irma_api_server` is a web server listening at the following paths.
 *   `DELETE /api/v2/verification/verificationID`: If the session
     exists it is deleted, and the service provider is informed of failure. Note that the token sends no reason, but this is what we want: the service provider does not need to learn if the user declined or if he does not have the required attributes.
 
+
+## Issuing
+
+The workflow here will be much the same as with disclosing. The `irma_api_server` sits between the token and the identity provider, handling all IRMA-specifics of issuing attributes to the token on behalf of the identity provider. In more detail, the following happens:
+
+* The `irma_api_server` is informed by the identity provider that it wants to issue certain attributes with certain values to a token. These may be attributes from more than one credential-type. If the identity provider is authorized for this (TODO), and the `irma_api_server` has the appropriate Idemix secret keys, then the `irma_api_server` returns a session token.
+* The identity provider informs the token of this session token, who then contacts `irma_api_server` mentioning the token. `irma_api_server` looks up the attributes that the identity provider wants issued and sends these (unsigned) to the token along with a nonce.
+* If the token agrees to receive this credentials, then it engages in the Idemix issuing protocol with the `irma_api_server` normally, where the token uses this nonce in its first message.
+
+Similarly to the disclosure proof request above, we define an _issuing request_ data type as follows:
+
+```json
+{
+    "nonce": 123,
+    "context": 456,
+    "credentials": [
+        {
+            "credential": "MijnOverheid.ageLower",
+            "validity": 6,
+            "attributes": {
+                "over12": "yes",
+                "over16": "no"
+            }
+        },
+        ...
+    ]
+}
+```
+
+This indicates that we want to issue the `ageLower` credential from `MijnOverheid` with a validity period of 6 months, with the specified attributes.
+
+The server listens at the following paths.
+
+*   `POST /api/v2/issue/`: accepts requests of the form
+
+    ```json
+    {
+        "data": "...",
+        "timeout": 10,
+        "request": "..."
+    }
+    ```
+    Here `data` can be any string of the issuer's choosing, while `request` is an issuing request (without a nonce or context). `timeout` specifies how long, in seconds, the server should wait for a token to contact it, before considering the issuing request failed. Only `request` is required, the other two are optional (the default value of `timeout` is 10 seconds). In response, the server returns a issuing ID that the issuer should forward to the token.
+*   `GET /api/v2/issue/issueID`: if `issueID` is a valid session token (i.e., it has been assigned to an issuing request
+    request at some point in the past), the server generates a nonce, puts this in the issuing request associated to this session token, and returns this to the token.
+*   `POST /api/v2/issue/issueID/commitments`: if `issueID` is a valid session token, then this accepts the token's
+    commitments to its secret key, one for each credential type that will be issued, in the form of a serialized
+    `IssueCommitmentMessage`. (This data type contains a `ProofList` instance; it is important that the proofs contained
+    in that list are in the same order as the credentials in the `credentials` object of the issuing request.)
+
+    The `irma_api_server` verifies the correctness of the commitments using the included zero-knowledge proofs. If they
+    are valid, then it computes the corresponding Camenisch-Lysyanskaya signatures for each of the credentials, and returns
+    these to the token, in the form of a list of `IssueSignatureMessage`s. Finally, it notifies the identity provider
+    of success.
+*   `DELETE /api/v2/issue/issueID`: If the session exists it is deleted, and the identity provider is informed of failure.
+
+### Questions
+
+* After the token receives the CL signatures and constructs the credentials, should it inform the `irma_api_server` of success or failure? Or perhaps it should just inform the `irma_api_server` of the fact that it is done, instead of a success/failure boolean, as it could otherwise send failure while it in fact did successfully obtain the credentials.
+* If the token sends such a message, then perhaps `irma_api_server` should not inform the IP immediately after giving the CL signatures to the token, but wait for this message from the token and forward that to the identity provider?
+
 # To do
 
-* Authentication between `irma_api_server` and the service provider
-* Issuing
+* Allow the identity provider to include a disclosure request in its request to the `irma_api_server`; the token then has to disclose the attributes from this disclosure request before it obtains the new credential.
+* Authentication between `irma_api_server` and the service provider and/or identity provider
