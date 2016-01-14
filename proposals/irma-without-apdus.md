@@ -8,7 +8,7 @@ _**This document is still work in progress!**_
 
 Until recently the IRMA token has always been a smart card as it offers very high levels of security. This focus allowed the IRMA system to thrive, but also imposed some restrictions on the system. Recently, we have been exploring other token carriers, like a smart phone. To enable working with the smart card, the interface has always been defined in terms of APDUs (the low level commands that you send to your smart card). However, when working with other tokens (for example a smart phone), this is not a natural interface.
 
-We propose a new protocol here for requesting and sending disclosure proofs between the token and the verifier, based on JSON instead of on APDU's. For now we deal with the disclosure of just one credential, instead of multiples that are bound by either cryptography or a safe channel. In the future we may expand to disclosures of multiple credentials as well as issuing.
+We propose a new protocol here for requesting and sending disclosure proofs between the token and the verifier, based on JSON instead of on APDU's. For now we only consider disclosures; in the future we will expand to issuing.
 
 # The setup
 
@@ -18,7 +18,7 @@ The workflow for the user should be as follows. Suppose she wants to watch a vid
 * The user scans it,
 * Her token either informs her that she does not have the required credentials or attributes, or asks her for permission to disclose the attributes that IrmaTube asked for. If she consents, her token sends a disclosure proofs to IrmaTube.
 
-For code reusability and maintainability, it makes sense to split the logic of the website and the cryptography of verifying the credentials into separate projects. Thus we propose to create a new `irma_verification_server` which handles the cryptography and the communication with the token. This server sits between the service provider (the IrmaTube website in the example above) and the token, and generally works as follows.
+For code reusability and maintainability, it makes sense to split the logic of the website and the cryptography of verifying the credentials into separate projects. For that reason we have created the [`irma_verification_server`](https://github.com/credentials/irma_verification_server), which handles the cryptography and the communication with the token. This server sits between the service provider (the IrmaTube website in the example above) and the token, and generally works as follows.
 
 * It accepts a disclosure proof request from the service provider (i.e., the IrmaTube website), and returns a session token.
 * It is then the task of the service provider (the IrmaTube website) to inform the token of this session token and where to reach the `irma_verification_server` - for example by using a QR code.
@@ -113,6 +113,5 @@ The `irma_verification_server` is a web server listening at the following paths.
 
 # To do
 
-* The protocol between the `irma_verification_server` and the service provider
-* Authentication between those two
+* Authentication between `irma_verification_server` and the service provider
 * Issuing
