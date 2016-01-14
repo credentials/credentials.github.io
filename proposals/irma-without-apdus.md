@@ -63,7 +63,7 @@ Credential-only proofs are supported as follows. When one of the disjunctions co
 
 The `irma_verification_server` is a web server listening at the following paths.
 
-*   `POST /api/v1/verification/create`: accepts requests from
+*   `POST /api/v2/verification`: accepts requests from
     service providers of the following form:
 
     ```json
@@ -75,9 +75,9 @@ The `irma_verification_server` is a web server listening at the following paths.
     ```
     Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a verification ID.
 
-*   `GET /api/v1/verification/verificationID`: if `verificationID` is a
+*   `GET /api/v2/verification/verificationID`: if `verificationID` is a
     valid session token (i.e., it has been assigned to a disclosure proof request at some point in the past), the server generates a nonce, puts this in the disclosure proof request associated to this session token, and returns this to the token.
-*   `POST /api/v1/verification/verificationID/proofs`: if `verificationID`
+*   `POST /api/v2/verification/verificationID/proofs`: if `verificationID`
     is a valid session token, this accepts a serialized `ProofList` object, that contains one or more disclosure proofs (`ProofD`s). The proofs are verified immediately, and the server informs the client (i. e., the IRMA token, not the service provider) of the validity of the proofs in the form of a string.
 
     The service provider is informed of the result in the form of a JSON web token signed with our RSA private key. If the proofs verified, then this token contains the attributes. If there was no `validity` specified in the request from the service proider, the web token's validity is set to 60 seconds. If the `data` field was present then this is included in the web token in the [`jti` field](https://tools.ietf.org/html/rfc7519#section-4.1.7). For example, (the payload of) a returned JSON web token might look as follows.
@@ -108,7 +108,7 @@ The `irma_verification_server` is a web server listening at the following paths.
 
     Note: it is [important to verify](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/) that the JSON web token is actually signed with an RSA signature.
 
-*   `DELETE /api/v1/verification/verificationID`: If the session
+*   `DELETE /api/v2/verification/verificationID`: If the session
     exists it is deleted, and the service provider is informed of failure. Note that the token sends no reason, but this is what we want: the service provider does not need to learn if the user declined or if he does not have the required attributes.
 
 # To do
