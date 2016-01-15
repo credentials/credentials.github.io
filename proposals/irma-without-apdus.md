@@ -186,11 +186,11 @@ The server listens at the following paths.
 
 ### Questions
 
+* In order to prevent linkability through the expiry date, which is always disclosed, the server should divide up time into epochs. The actual validity date of the credential can then be rounded up from the requested expiry date to the boundary of such an epoch. Will the server do this implicitly, or should it only accept requests from the IP whose `expires` exactly matches an epoch boundary?
 * After the token receives the CL signatures and constructs the credentials, should it inform the `irma_api_server` of success or failure? Or perhaps it should just inform the `irma_api_server` of the fact that it is done, instead of a success/failure boolean, as it could otherwise send failure while it in fact did successfully obtain the credentials.
 * If the token sends such a message, then perhaps `irma_api_server` should not inform the IP immediately after giving the CL signatures to the token, but wait for this message from the token and forward that to the identity provider?
 
 # To do
 
-* In order to prevent linkability through the expiry date, which is always disclosed, the server should divide up time into epochs. The actual validity date of the credential can then be rounded up from the requested expiry date to the boundary of such an epoch. Will the server do this implicitly, or should it only accept requests from the IP whose `expires` exactly matches an epoch boundary?
 * Allow the identity provider to include a disclosure request in its request to the `irma_api_server`; the token then has to disclose the attributes from this disclosure request before it obtains the new credential.
 * Authentication between `irma_api_server` and the service provider and/or identity provider
