@@ -136,11 +136,21 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
             }
         },
         ...
+    ],
+    "disclose": [
+        {
+            "label": "Over 18",
+            "attributes": {
+                "MijnOverheid.ageLower.over18": "yes",
+                "Thalia.age.over18": "Yes"
+            }
+        },
+        ...
     ]
 }
 ```
 
-This indicates that we want to issue the `ageLower` credential from `MijnOverheid`, that will expire on the corresponding Unix timestamp (which is in this case January 1 2017, 12:00 PM).
+This indicates that we want to issue the `ageLower` credential from `MijnOverheid`, that will expire on the corresponding Unix timestamp (which is in this case January 1 2017, 12:00 PM). In addition, the issuing will only happen if the token can satisfy the disclosure request in the `disclose` field (that is, in this case the token has to be able to show one of the two mentioned attributes with the corresponding value).
 
 The server listens at the following paths.
 
@@ -150,19 +160,26 @@ The server listens at the following paths.
     {
         "data": "...",
         "timeout": 10,
-        "request": "..."
+        "request": "...",
+        "send_disclosure": "..."
     }
     ```
-    Here `data` can be any string of the issuer's choosing, while `request` is an issuing request (without a nonce or context). `timeout` specifies how long, in seconds, the server should wait for a token to contact it, before considering the issuing request failed. Only `request` is required, the other two are optional (the default value of `timeout` is 10 seconds). In response, the server returns a issuing ID that the issuer should forward to the token.
+    The fields mean the following:
+    *   `data` can be any string of the issuer's choosing,
+    *   `request` is an issuing request (without a nonce or context),
+    *   `timeout` specifies how long, in seconds, the server should wait for a token to contact it, before considering the issuing request failed,
+    *   `send_disclosure`: if the request included the disclosure of another credential, then this boolean (with values `true`/`false`) indicates whether or not the `irma_api_server` is to forward the result of this disclosure back to the identity provider.
+
+    Only `request` is required, the other three are optional (the default value of `timeout` is 10 seconds and `send_disclosure` defaults to `false`). In response, the server returns a issuing ID that the issuer should forward to the token.
 *   `GET /api/v2/issue/issueID`: if `issueID` is a valid session token (i.e., it has been assigned to an issuing request
     request at some point in the past), the server generates a nonce, puts this in the issuing request associated to this session token, and returns this to the token.
 *   `POST /api/v2/issue/issueID/commitments`: if `issueID` is a valid session token, then this accepts the token's
     commitments to its secret key, one for each credential type that will be issued, in the form of a serialized
     `IssueCommitmentMessage`. (This data type contains a `ProofList` instance; it is important that the proofs contained
-    in that list are in the same order as the credentials in the `credentials` object of the issuing request.)
+    in that list are in the same order as the credentials in the `credentials` object of the issuing request. If the issuing request included the disclosure(s) of other credential(s), then this `ProofList` should contain the corresponding disclosure proof(s)).
 
     The `irma_api_server` verifies the correctness of the commitments using the included zero-knowledge proofs. If they
-    are valid, then it computes the corresponding Camenisch-Lysyanskaya signatures for each of the credentials, and returns
+    are valid, and if the appropriate attributes were correctly disclosed, then it computes the corresponding Camenisch-Lysyanskaya signatures for each of the credentials, and returns
     these to the token, in the form of a list of `IssueSignatureMessage`s. Finally, it notifies the identity provider
     of success.
 *   `DELETE /api/v2/issue/issueID`: If the session exists it is deleted, and the identity provider is informed of failure.
