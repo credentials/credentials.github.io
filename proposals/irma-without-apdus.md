@@ -5,7 +5,6 @@ permalink: /proposals/irma-without-apdus/
 ---
 _**This document is still work in progress!**_
 
-
 Until recently the IRMA token has always been a smart card as it offers very high levels of security. This focus allowed the IRMA system to thrive, but also imposed some restrictions on the system. Recently, we have been exploring other token carriers, like a smart phone. To enable working with the smart card, the interface has always been defined in terms of APDUs (the low level commands that you send to your smart card). However, when working with other tokens (for example a smart phone), this is not a natural interface.
 
 We propose a new protocol here for requesting and sending disclosure proofs between the token and the verifier, and issuing credentials to the token, based on JSON instead of on APDU's.
@@ -98,7 +97,6 @@ The `irma_api_server` is a web server listening at the following paths.
         "status": "VALID"
     }
     ```
-
     The last entry in the `attributes` map is the response to a credential-only request: it indicates that the `fullName` credential issued by `MijnOverheid` is present on the token.
 
     The `status` is the same value that is sent to the token, and can be one of the following:
@@ -131,7 +129,7 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
     "credentials": [
         {
             "credential": "MijnOverheid.ageLower",
-            "validity": 6,
+            "expires": 1484481600,
             "attributes": {
                 "over12": "yes",
                 "over16": "no"
@@ -142,7 +140,7 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
 }
 ```
 
-This indicates that we want to issue the `ageLower` credential from `MijnOverheid` with a validity period of 6 months, with the specified attributes.
+This indicates that we want to issue the `ageLower` credential from `MijnOverheid`, that will expire on the corresponding Unix timestamp (which is in this case January 1 2017, 12:00 PM).
 
 The server listens at the following paths.
 
@@ -176,5 +174,6 @@ The server listens at the following paths.
 
 # To do
 
+* In order to prevent linkability through the expiry date, which is always disclosed, the server should divide up time into epochs. The actual validity date of the credential can then be rounded up from the requested expiry date to the boundary of such an epoch. Will the server do this implicitly, or should it only accept requests from the IP whose `expires` exactly matches an epoch boundary?
 * Allow the identity provider to include a disclosure request in its request to the `irma_api_server`; the token then has to disclose the attributes from this disclosure request before it obtains the new credential.
 * Authentication between `irma_api_server` and the service provider and/or identity provider
