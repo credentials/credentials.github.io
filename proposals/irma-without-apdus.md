@@ -116,7 +116,7 @@ The `irma_api_server` is a web server listening at the following paths.
 
 The workflow here will be much the same as with disclosing. The `irma_api_server` sits between the token and the identity provider, handling all IRMA-specifics of issuing attributes to the token on behalf of the identity provider. In more detail, the following happens:
 
-* The `irma_api_server` is informed by the identity provider that it wants to issue certain attributes with certain values to a token. These may be attributes from more than one credential-type. If the identity provider is authorized for this (TODO), and the `irma_api_server` has the appropriate Idemix secret keys, then the `irma_api_server` returns a session token.
+* The identity provider informs the `irma_api_server` that it wants to issue certain attributes with certain values to a token. These may be attributes from more than one credential-type. If the identity provider is authorized for this, and the `irma_api_server` has the appropriate Idemix secret keys, then the `irma_api_server` returns a session token.
 * The identity provider informs the token of this session token, who then contacts `irma_api_server` mentioning the token. `irma_api_server` looks up the attributes that the identity provider wants issued and sends these (unsigned) to the token along with a nonce.
 * If the token agrees to receive this credentials, then it engages in the Idemix issuing protocol with the `irma_api_server` normally, where the token uses this nonce in its first message.
 
@@ -128,11 +128,13 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
     "context": 456,
     "credentials": [
         {
-            "credential": "MijnOverheid.ageLower",
+            "credential": "MijnOverheid.ageHigher",
             "expires": 1484481600,
             "attributes": {
-                "over12": "yes",
-                "over16": "no"
+                "over50": "yes",
+                "over60": "no",
+                "over65": "no",
+                "over75": "no"
             }
         },
         ...
@@ -150,27 +152,35 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
 }
 ```
 
-This indicates that we want to issue the `ageLower` credential from `MijnOverheid`, that will expire on the corresponding Unix timestamp (which is in this case January 1 2017, 12:00 PM). In addition, the issuing will only happen if the token can satisfy the disclosure request in the `disclose` field (that is, in this case the token has to be able to show one of the two mentioned attributes with the corresponding value).
+This indicates that we want to issue the `ageHigher` credential from `MijnOverheid`, that will expire on the corresponding Unix timestamp (which is in this case January 1 2017, 12:00 PM). In addition, the issuing will only happen if the token can satisfy the disclosure request in the `disclose` field (that is, in this case the token has to be able to show one of the two mentioned attributes with the corresponding value).
 
 The server listens at the following paths.
 
-*   `POST /api/v2/issue/`: accepts requests of the form
+*   `POST /api/v2/issue/`: accepts requests in the form of a JSON web token, whose payload should be of the form
 
     ```json
     {
-        "data": "...",
-        "timeout": 10,
-        "request": "...",
-        "send_disclosure": "..."
+        "iss": "Identity provider name",
+        "sub": "issue_request",
+        "iat": 1453377600,
+        "iprequest": {
+            "data": "...",
+            "timeout": 10,
+            "request": "..."
+        }
     }
     ```
     The fields mean the following:
-    *   `data` can be any string of the issuer's choosing,
-    *   `request` is an issuing request (without a nonce or context),
-    *   `timeout` specifies how long, in seconds, the server should wait for a token to contact it, before considering the issuing request failed,
-    *   `send_disclosure`: if the request included the disclosure of another credential, then this boolean (with values `true`/`false`) indicates whether or not the `irma_api_server` is to forward the result of this disclosure back to the identity provider.
+    *   `iss` identifies the identity provider for the `irma_api_server` and the token. (`iss` is a standard JWT field, refering to the creator of the token, which in this case is, perhaps slightly confusing, the identity provider).
+    *   `sub` is a fixed field whose value should be `issue_request`.
+    *   `iat` is the time of the JWT creation. The server only accepts requests younger than a certain cutoff.
+    *   `data` can be any string of the issuer's choosing.
+    *   `request` is an issuing request as defined above (without a nonce or context).
+    *   `timeout` specifies how long, in seconds, the server should wait for a token to contact it, before considering the issuing request failed.
 
-    Only `request` is required, the other three are optional (the default value of `timeout` is 10 seconds and `send_disclosure` defaults to `false`). In response, the server returns a issuing ID that the issuer should forward to the token.
+    The server keeps a list of public keys for the verification of incoming JSON web tokens; it uses the `iss` field to lookup the appropriate public key.
+
+    Of the `iprequest` field, only `request` is required, the other three are optional (the default value of `timeout` is 10 seconds). In response, the server returns a issuing ID that the issuer should forward to the token.
 *   `GET /api/v2/issue/issueID`: if `issueID` is a valid session token (i.e., it has been assigned to an issuing request
     request at some point in the past), the server generates a nonce, puts this in the issuing request associated to this session token, and returns this to the token.
 *   `POST /api/v2/issue/issueID/commitments`: if `issueID` is a valid session token, then this accepts the token's
@@ -180,17 +190,9 @@ The server listens at the following paths.
 
     The `irma_api_server` verifies the correctness of the commitments using the included zero-knowledge proofs. If they
     are valid, and if the appropriate attributes were correctly disclosed, then it computes the corresponding Camenisch-Lysyanskaya signatures for each of the credentials, and returns
-    these to the token, in the form of a list of `IssueSignatureMessage`s. Finally, it notifies the identity provider
-    of success.
+    these to the token, in the form of a list of `IssueSignatureMessage`s.
 *   `DELETE /api/v2/issue/issueID`: If the session exists it is deleted, and the identity provider is informed of failure.
-
-### Questions
-
-* In order to prevent linkability through the expiry date, which is always disclosed, the server should divide up time into epochs. The actual validity date of the credential can then be rounded up from the requested expiry date to the boundary of such an epoch. Will the server do this implicitly, or should it only accept requests from the IP whose `expires` exactly matches an epoch boundary?
-* After the token receives the CL signatures and constructs the credentials, should it inform the `irma_api_server` of success or failure? Or perhaps it should just inform the `irma_api_server` of the fact that it is done, instead of a success/failure boolean, as it could otherwise send failure while it in fact did successfully obtain the credentials.
-* If the token sends such a message, then perhaps `irma_api_server` should not inform the IP immediately after giving the CL signatures to the token, but wait for this message from the token and forward that to the identity provider?
 
 # To do
 
-* Allow the identity provider to include a disclosure request in its request to the `irma_api_server`; the token then has to disclose the attributes from this disclosure request before it obtains the new credential.
-* Authentication between `irma_api_server` and the service provider and/or identity provider
+* Authentication between `irma_api_server` and the service provider
