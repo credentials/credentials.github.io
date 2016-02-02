@@ -41,7 +41,7 @@ We can keep the smart cards in the game as follows:
 
 We first focus on the protocol between the `irma_api_server` and the token. We first define a _disclosure proof request_ data type, that looks as follows.
 
-```json
+~~~ json
 {
     "nonce": 123,
     "context": 456,
@@ -56,7 +56,7 @@ We first focus on the protocol between the `irma_api_server` and the token. We f
         ...
     ]
 }
-```
+~~~
 
 The `nonce` and `context` are optional large integers. Each entry of `content` is a disjunction of attributes, along with a label that can be shown to the user of the token. The disjunctions themselves should be ANDed together. Thus, this example asks for `MijnOverheid.ageLower.over18` or `Thalia.age.over18`.
 
@@ -67,13 +67,13 @@ The `irma_api_server` is a web server listening at the following paths.
 *   `POST /api/v2/verification`: accepts requests from
     service providers of the following form:
 
-    ```json
+    ~~~ json
     {
         "data": "...",
         "validity": "60",
         "request": "..."
     }
-    ```
+    ~~~
     Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a verification ID.
 
 *   `GET /api/v2/verification/verificationID`: if `verificationID` is a
@@ -83,7 +83,7 @@ The `irma_api_server` is a web server listening at the following paths.
 
     The service provider is informed of the result in the form of a JSON web token signed with our RSA private key. If the proofs verified, then this token contains the attributes. If there was no `validity` specified in the request from the service proider, the web token's validity is set to 60 seconds. If the `data` field was present then this is included in the web token in the [`jti` field](https://tools.ietf.org/html/rfc7519#section-4.1.7). For example, (the payload of) a returned JSON web token might look as follows.
 
-    ```json
+    ~~~ json
     {
         "exp": 1448636691,
         "sub": "disclosure_result",
@@ -96,10 +96,11 @@ The `irma_api_server` is a web server listening at the following paths.
         "iat": 1448636631,
         "status": "VALID"
     }
-    ```
+    ~~~
     The last entry in the `attributes` map is the response to a credential-only request: it indicates that the `fullName` credential issued by `MijnOverheid` is present on the token.
 
     The `status` is the same value that is sent to the token, and can be one of the following:
+
     - `VALID`: the proofs were valid
     - `INVALID`: the proofs were invalid
     - `EXPIRED`: one or more of the proofs came from an expired credential
@@ -122,7 +123,7 @@ The workflow here will be much the same as with disclosing. The `irma_api_server
 
 Similarly to the disclosure proof request above, we define an _issuing request_ data type as follows:
 
-```json
+~~~ json
 {
     "nonce": 123,
     "context": 456,
@@ -150,7 +151,7 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
         ...
     ]
 }
-```
+~~~
 
 This indicates that we want to issue the `ageHigher` credential from `MijnOverheid`, that will expire on the corresponding Unix timestamp (which is in this case January 1 2017, 12:00 PM). In addition, the issuing will only happen if the token can satisfy the disclosure request in the `disclose` field (that is, in this case the token has to be able to show one of the two mentioned attributes with the corresponding value).
 
@@ -158,7 +159,7 @@ The server listens at the following paths.
 
 *   `POST /api/v2/issue/`: accepts requests in the form of a JSON web token, whose payload should be of the form
 
-    ```json
+    ~~~ json
     {
         "iss": "Identity provider name",
         "sub": "issue_request",
@@ -169,8 +170,9 @@ The server listens at the following paths.
             "request": "..."
         }
     }
-    ```
+    ~~~
     The fields mean the following:
+
     *   `iss` identifies the identity provider for the `irma_api_server` and the token. (`iss` is a standard JWT field, refering to the creator of the token, which in this case is, perhaps slightly confusing, the identity provider).
     *   `sub` is a fixed field whose value should be `issue_request`.
     *   `iat` is the time of the JWT creation. The server only accepts requests younger than a certain cutoff.
