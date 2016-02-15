@@ -74,7 +74,15 @@ The `irma_api_server` is a web server listening at the following paths.
         "request": "..."
     }
     ~~~
-    Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a verification ID.
+    Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a JSON object of the form
+
+    ~~~ json
+    {
+        "u": "...",
+        "v": "2.0"
+    }
+    ~~~
+    where `u` is the session token (`v` is a fixed value numbering the API version). It is the responsibility of the service provider to prepend the url to the api server to the session token `u`, so that the token knows where to find the api server, and then to forward this to the token.
 
 *   `GET /api/v2/verification/verificationID`: if `verificationID` is a
     valid session token (i.e., it has been assigned to a disclosure proof request at some point in the past), the server generates a nonce, puts this in the disclosure proof request associated to this session token, and returns this to the token.
@@ -182,7 +190,15 @@ The server listens at the following paths.
 
     The server keeps a list of public keys for the verification of incoming JSON web tokens; it uses the `iss` field to lookup the appropriate public key.
 
-    Of the `iprequest` field, only `request` is required, the other three are optional (the default value of `timeout` is 10 seconds). In response, the server returns a issuing ID that the issuer should forward to the token.
+    Of the `iprequest` field, only `request` is required, the other three are optional (the default value of `timeout` is 10 seconds). In response, the server returns a JSON object of the form
+
+    ~~~ json
+    {
+        "u": "...",
+        "v": "2.0"
+    }
+    ~~~
+    where `u` is the session token (`v` is a fixed value numbering the API version). It is the responsibility of the service provider to prepend the url to the api server to the session token `u`, so that the token knows where to find the api server, and then to forward this to the token.
 *   `GET /api/v2/issue/issueID`: if `issueID` is a valid session token (i.e., it has been assigned to an issuing request
     request at some point in the past), the server generates a nonce, puts this in the issuing request associated to this session token, and returns this to the token.
 *   `POST /api/v2/issue/issueID/commitments`: if `issueID` is a valid session token, then this accepts the token's
