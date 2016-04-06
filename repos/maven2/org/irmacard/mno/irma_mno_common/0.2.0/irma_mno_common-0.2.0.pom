@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.irmacard.mno</groupId>
+  <artifactId>irma_mno_common</artifactId>
+  <version>0.2.0</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.irmacard.api</groupId>
+      <artifactId>irma_api_common</artifactId>
+      <version>0.3.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.10</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jmrtd</groupId>
+      <artifactId>jmrtd</artifactId>
+      <version>0.5.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.scuba</groupId>
+      <artifactId>scuba_smartcards</artifactId>
+      <version>0.0.7-irma</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.madgag.spongycastle</groupId>
+      <artifactId>prov</artifactId>
+      <version>1.52.0.0</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
