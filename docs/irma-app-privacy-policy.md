@@ -4,8 +4,7 @@ title: IRMA app privacy policy (12-04-2016 v1)
 permalink: /docs/irma-app-privacy-policy/
 ---
 
-
-The IRMA app obtains, stores and transmits personal information about you.
+The [IRMA app](https://play.google.com/store/apps/details?id=org.irmacard.cardemu) obtains, stores and transmits personal information about you.
 This document details how we use your personal information for and how the app handles it.
 
 ## Obtaining attributes
