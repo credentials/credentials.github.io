@@ -1,99 +1,55 @@
 ---
 layout: page
-title: Welcome to IRMA's Development & Engineering headquarters
+title: Getting started with IRMA
 ---
 
-This is the place to find out more about the code that actually drives the IRMA project.
+IRMA is a distributed, attribute-based authentication technique which is very privacy-friendly.
+This page provides a short overview on how to start using IRMA.
+You can find more information on the IRMA project [here](https://www.irmacard.org/).
 
-This page has just been created and will be under development for some time. In the end it will contain a guide/manual for developers to develop new IRMA applications/services or to integrate IRMA support into existing applications and services.
+## IRMA user client
+Users will need an IRMA client to manage their attributes.
+Currently, there are two user client implementations of IRMA.
+A smart card version and a much newer Android app.
 
-## Credentials API
+### IRMA on a smart card
+IRMA development started out on a smart card.
+This code is no longer actively maintained and new users are encouraged to look at the IRMA app.
+However, the smart card code is still functional and you can find it here: [idemix terminal](https://github.com/credentials/idemix_terminal)
 
-To start we need to create a working directory (replace `<workdir>` with a name of your choice).
+### IRMA app
+The IRMA app is currently the most up-to-date version of user-side IRMA stuff.
+The IRMA app is available for download directly from the [Google Play store](www.play.google.com).
+If you have no access to the Google Play store, or do not wish to get the app from there, you can also find a binary [here](https://www.irmacard.org/irmaphone/#install).
+Alternatively, you can build the app from the publicly available [source code](https://github.com/credentials/irma_android_cardemu).
+Be aware that only an install via the app store will automatically update to the newest version.
 
-    $ mkdir <workdir>
-    $ cd <workdir>
+After installing the app, users can obtain their first credentials through a self-enrollment.
+They can either convert the data from an electronic identity document to credentials, or they can self-issue credentials online through a "demo enroll."
 
-Within this working directory we will check out the various projects and set up the IRMA development environment. Most of the projects provide both Eclipse project files as well as Ant build files. The eclipse project files are usually located in the `dev/eclipse` directory, so they should be copied to the project root before use. When using the Ant build file, running the `ant` command, will produce three `.jar` files:
+After obtaining attributes, users can use them to authenticate to service providers.
+Several demo's can be found on [demo.irmacard.org](https://demo.irmacard.org/).
 
- * `<projectname>.lib.jar` or `<projectname>.app.jar`: The binaries of the library or application. Applications can be run using the `java -jar <projectname>.app.jar` command.
- * `<projectname>.src.jar`: The sources of the project combined into a single archive.
- * `<projectname>.dev.jar`: A combination of the above, which is convenient for developers.
+More information on installing and using the IRMA app van be found [here](https://www.irmacard.org/irmaphone/).
 
-<h4>
-<a name="scuba" class="anchor" href="#scuba"><span class="octicon octicon-link"></span></a>SCUBA</h4>
 
-For the communication with the IRMA card we use the <a href="http://scuba.sf.net">SCUBA library</a> to provide a layer of abstraction.
+## Verifying and Issuing credentials
+If you want to verify and/or issue credentials you will need to run one of the following projects.
 
-    $ git clone https://github.com/credentials/scuba.git
-    $ cd scuba
-    $ ant
-    $ cd ..
+### [IRMA JavaScript client](https://github.com/credentials/irma_js)
+[irma_js](https://github.com/credentials/irma_js) is a JavaScript client that will talk to an IRMA-API server, which does the actual verifying and issuing.
+This JavaScript client essentially connects your webpage logic to the verification/issuing process, making it very easy to deploy IRMA technology on your websites.
+The irma_js client can contact our own demo API server, so you can get started with only this JavaScript client.
+When that works you can always look into running your own API server.
 
-<h4>
-<a name="idemix" class="anchor" href="#idemix"><span class="octicon octicon-link"></span></a>Idemix</h4>
+### [API server](https://github.com/credentials/irma_api_server)
+The [API server](https://github.com/credentials/irma_api_server) handles all IRMA-specific cryptographic details of issuing and verifying attributes on behalf of the service or identity provider.
+If you wish to run your own API server you can find the code and instructions [here](https://github.com/credentials/irma_api_server).
 
-    $ git clone https://github.com/credentials/idemix_library.git
-    $ git clone https://github.com/credentials/idemix_terminal.git
+<!---
+## Adding new credentials
+New attributes can be added to the IRMA configuration project.
+--->
 
-The next step is to prepare these sources. For this we first need to <a href="https://prime.inf.tu-dresden.de/idemix/">download the Idemix 2.3.4 sources</a> from IBM and store them in the idemix_library created by the clone command. These sources need to be patched, hence the additional `ant prepare` command. Note: Idemix 2.3.40 and newer are not supported.
-
-    $ cd idemix_library
-    $ ant prepare; ant
-    $ cd ..
-
-<!-- -->
-
-    $ cd idemix_terminal/lib
-    $ ln -s ../../scuba/scuba.dev.jar
-    $ ln -s ../../idemix_library/idemix_library.dev.jar
-    $ cd ..
-    $ ant
-    $ cp dev/eclipse/.project dev/eclipse/.classpath .
-    $ cd ..
-
-#### IRMA
-
-    $ git clone https://github.com/credentials/irma_configuration.git
-    $ git clone https://github.com/credentials/credentials_api.git
-    $ git clone https://github.com/credentials/credentials_idemix.git
-
-The `irma_configuration` project contains the data structure used within the IRMA project by the credentials API. The actual API consists of two projects, `credentials_api` which contains the generic code and `credentials_idemix` which contains the Idemix specific instantiations of the API.
-
-    $ cd credentials_api/lib
-    $ ln -s ../../scuba/scuba.dev.jar
-    $ cd ..
-    $ ant
-    $ cp dev/eclipse/.project dev/eclipse/.classpath .
-    $ cd ..
-
-<!-- -->
-
-    $ cd credentials_idemix/lib
-    $ ln -s ../../scuba/scuba.dev.jar
-    $ ln -s ../../idemix_library/idemix_library.dev.jar
-    $ ln -s ../../idemix_terminal/idemix_terminal.dev.jar
-    $ ln -s ../../credentials_api/credentials_api.dev.jar
-    $ cd ..
-    $ ant
-    $ cp dev/eclipse/.project dev/eclipse/.classpath .
-    $ ln -s ../irma_configuration
-    $ cd ..
-
-## Developing an IRMA application
-
-Now you can start developing your own IRMA application. The easiest for this is to create your own project directory `<project>` within the `<workdir>`. Within this directory add all relevant libraries and add the IRMA configuration such that the Credentials API can find it.
-
-    $ mkdir <project>
-    $ cd <project>
-    $ ln -s ../irma_configuration
-    $ mkdir lib; cd lib
-    $ ln -s ../../scuba/scuba.dev.jar
-    $ ln -s ../../idemix_library/idemix_library.dev.jar
-    $ ln -s ../../idemix_terminal/idemix_terminal.dev.jar
-    $ ln -s ../../credentials_api/credentials_api.dev.jar
-    $ ln -s ../../credentials_idemix/credentials_idemix.dev.jar
-
-### Support or Contact
-
-Having trouble with the Credentials API or IRMA development? Contact <a href="mailto:pim@cs.ru.nl">pim@cs.ru.nl</a> and we’ll help you sort it out.
+## Support or Contact
+Having trouble with the IRMA usage or development? Contact <a href="mailto:phone@demo.irmacard.org">phone@demo.irmacard.org</a> and we’ll help you sort it out.
