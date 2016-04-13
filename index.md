@@ -14,21 +14,21 @@ A smart card version and a much newer Android app.
 
 ### IRMA on a smart card
 IRMA development started out on a smart card.
-This code is no longer actively maintained and new users are encouraged to look at the IRMA app.
+This code is no longer actively maintained and new users are encouraged to look at the IRMA app instead.
 However, the smart card code is still functional and you can find it here: [idemix terminal](https://github.com/credentials/idemix_terminal)
 
 ### IRMA app
 The IRMA app is currently the most up-to-date version of user-side IRMA stuff.
-The IRMA app is available for download directly from the [Google Play store](www.play.google.com).
+The IRMA app is available for download directly from the [Google Play store](https://play.google.com/store/apps/details?id=org.irmacard.cardemu).
 If you have no access to the Google Play store, or do not wish to get the app from there, you can also find a binary [here](https://www.irmacard.org/irmaphone/#install).
 Alternatively, you can build the app from the publicly available [source code](https://github.com/credentials/irma_android_cardemu).
 Be aware that only an install via the app store will automatically update to the newest version.
 
-After installing the app, users can obtain their first credentials through a self-enrollment.
-They can either convert the data from an electronic identity document to credentials, or they can self-issue credentials online through a "demo enroll."
+After installing the app, users can obtain their first credentials through a self-enrollment process.
+They can either convert the data from an electronic identity document to credentials, or they can self-issue credentials online through a demo enrollment website.
 
 After obtaining attributes, users can use them to authenticate to service providers.
-Several demo's can be found on [demo.irmacard.org](https://demo.irmacard.org/).
+Several demos can be found on [demo.irmacard.org](https://demo.irmacard.org/).
 
 More information on installing and using the IRMA app van be found [here](https://www.irmacard.org/irmaphone/).
 
