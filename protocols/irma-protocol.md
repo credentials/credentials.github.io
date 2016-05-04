@@ -222,3 +222,186 @@ The server listens at the following paths.
 The protocol is summarized by the following diagram (many thanks for Timen Olthof!).
 
 ![Disclosure diagram](/images/Issuing.png)
+
+## Attribute-based signatures
+Besides just disclosure proofs, we can also use IRMA to produce attribute-based
+digital signatures [1].
+
+[1] : [http://www.cs.ru.nl/~brinda/publications/Space-paper.pdf](http://www.cs.ru.nl/~brinda/publications/Space-paper.pdf)
+
+Most of the times, it is important to know with _which_ attributes a statement is
+signed: this will describe the role of the signer. A person could for example
+sign a document using his/her name, but also only using the fact that he/she is
+over 18 and thus old enough to sign a contract.
+
+To determine the required attributes, a signature specification is used: this
+specification determines how a certain statement is signed in the same way as a
+disclosure proof request determines which attributes are used in a disclosure
+proof. If a service provider needs a signature from a user, it has to send this
+signature specification to the irma_api_server. 
+
+An example signature specification looks as follows:
+
+~~~json
+{
+    "message" : "Message to be signed",
+    "messageType" : "STRING",
+    "nonce"   : "Nonce, will be combined with context and message hash to get challenge",
+    "context" : 456,
+    "content": [
+        {
+            "label": "Over 18",
+            "condition" : "yes",
+            "attributes": [
+                "MijnOverheid.ageLower.over18",
+                "Thalia.age.over18"
+            ],
+            "conditions" : [
+                { "MijnOverheid.ageLower.over18" : "yes"},
+                { "Thalia.age.over18" : "ja" }
+            ]
+        },
+        ...
+    ]
+}
+~~~
+
+Like with the disclosure proof request data type, the `nonce` and `context` are
+optional large integers. Each entry of `content` is a disjunction of attributes,
+along with a label that can be shown to the user of the token. The disjunctions
+themselves should be ANDed together. Besides the attributes, we can also require
+optional conditions on the values of the attributes. If these are present, then
+the signer (the token) is required to have the attribute values specified in the
+conditions. If not, then the signature won't be acceptd by the irma_api_server.
+
+We have two type of conditions: _global_ and _local_ conditions. Global
+conditions need to hold for all the selected attributes in the disjunction,
+where local conditions are specified on a per-attribute basis. Note that local
+conditions override global conditions: if a local conditions for an attribute is
+specified, then it will override the global `default'.
+
+If `messageType` contains the keyword _STRING_, then the `message` must contain
+a string that is the message that will be signed with the specified attributes.
+In the future, the messageType could be expanded with for example 'PDF'. In that
+case, the message field could contain a URL to a PDF file, which can be retrieved 
+and signed instead.
+
+Like with the disclosure proofs, the irma_api_server will listen to the
+following paths:
+
+*   `POST /api/v2/signature`: accepts requests from
+    service providers of the following form:
+
+    ~~~ json
+    {
+        "data": "...",
+        "validity": "60",
+        "request": "..."
+    }
+    ~~~
+    This is the same type of request as /api/v2/verification, but the request
+    data type needs to be a signature specification instead of a disclosure proof
+    request. In response, the server returns a JSON object of the form:
+
+    ~~~ json
+    {
+        "u": "...",
+        "v": "2.0"
+    }
+    ~~~
+    where `u` is the session token, like with the disclosure proofs.
+
+*   `GET /api/v2/signature/verificationID`: if `verificationID` is a
+    valid session token (i.e., it has been assigned to a signature specification
+    at some point in the past), the server generates a nonce, puts this in the
+    request associated to this session token, and returns this to the token.
+
+*   `POST /api/v2/signature/verificationID/proofs`: if `verificationID`
+    is a valid session token, this accepts a serialized `ProofList` object, that
+    contains one or more disclosure proofs (`ProofD`s). The proofs are verified
+    immediately, and the server informs the client (i. e., the IRMA token, not the
+    service provider) of the validity of the proofs in the form of a string. Note
+    that this disclosure proof must be a signature proof (so the message should be
+    contained in the challenge of the proof).
+
+    The service provider is informed of the result in the form of a JSON web
+    token signed with our RSA private key, like in the case of diclosure proofs.
+    But this token also contains the signature, which allows the service provider to
+    store this for later use (i.e. storing a renting contract).
+
+    ~~~json
+    {
+        "exp": 1448636691,
+        "sub": "signature_result",
+        "jti": "foobar",
+        "attributes": {
+            "MijnOverheid.ageLower.over18": "yes",
+            "IRMAWiki.member.email": "stuifje@kuifje.nl",
+            "MijnOverheid.fullName": "present"
+        },
+        "iat": 1448636631,
+        "status": "VALID",
+    	"signature" : "Serialized prooflist",
+    	"message" : "The message that has been signed by this signature",
+        "messageType" : "string",
+        "nonce"   : "Nonce, will be combined with context and message hash to get challenge",
+        "context" : 456,
+        "condition" : { "Global condition" },
+        "conditions" : { // Disjunctionlist with conditions, optional and only needed if conditions on attributes are enforced
+        }
+    }
+    ~~~
+    The conditions are additionally included, because storing these ensures that the
+    right conditions are met if the signature is verified later on. The nonce,
+    context, message and messageType are also included because they are needed to
+    verify the signature.
+
+*   `DELETE /api/v2/signature/verificationID`: If the session
+    exists it is deleted, and the service provider is informed of failure. Note
+    that the token sends no reason, but this is what we want: the service provider
+    does not need to learn if the user declined or if he does not have the required
+    attributes.
+
+*   `POST /api/v2/signature/checksignature`:
+    This is a simple stateless api request that allows a service provider to
+    check a signature without having IRMA software. It accepts a signature, as
+    returned in the json web token and returns a status (with the same structure as
+    the status object that has been included in the json web token).
+    Note that a session token is not needed to execute
+    this request. Also note that the response on this request is not signed with
+    the api_server's private key: this still needs to be implemented.
+
+### Intermezzo: technical context about challenge
+
+This section contains some technical context. If you just want to use the
+protocol, you can skip this. TODO: move this section to somewhere
+else?
+
+An attribute-based signature is still a disclosure proof with a modified
+nonce. The nonce is now calculated as:
+```
+    nonce = sha256(nonce, sha256(message))
+```
+
+As in the original paper explained, this double hashing seems unneccesary but it
+allows us to keep the changes to the existing IRMA infrastructure to a minimum.
+
+Like with disclosure proofs, this calculated nonce will be concatenated with
+the context and asn1-encoded to obtain the challenge:
+```
+    challenge = asn1(sha256(context,nonce))
+```
+
+The asn1 encoding makes sure that we have a clear separation between IRMA
+disclosure proofs and IRMA signatures: in the case of signatures, we additionaly
+encode a boolean, which is set to true, in front of the challenge. This was in
+the original paper proposed as the `dbit`.
+
+### To do
+
+* Authentication between `irma_api_server` and the service provider
+* Review of current signature proposal
+* Remove double hashing from signatures?
+* Sign data with web token on the /signature/checksignature api
+* SP authentication with signature sessions (already done for verification by Sietse)
+* Some code clean up (mostly duplicated code between verification and signatures that can be combined)
