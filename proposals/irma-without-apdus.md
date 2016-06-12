@@ -64,9 +64,7 @@ Credential-only proofs are supported as follows. When one of the disjunctions co
 
 The `irma_api_server` is a web server listening at the following paths.
 
-*   `POST /api/v2/verification`: accepts requests from
-    service providers of the following form:
-
+*   `POST /api/v2/verification`: accepts requests from service providers in the form of a JSON web token, whose payload should be of the form
     ~~~ json
     {
         "data": "...",
@@ -74,7 +72,7 @@ The `irma_api_server` is a web server listening at the following paths.
         "request": "..."
     }
     ~~~
-    Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a JSON object of the form
+    Possibly the server accepts unsigned JWT's. Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a JSON object of the form
 
     ~~~ json
     {
