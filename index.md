@@ -51,5 +51,22 @@ If you wish to run your own API server you can find the code and instructions [h
 New attributes can be added to the IRMA configuration project.
 --->
 
+## Dependency graph
+
+The following image shows the relationships between the most important IRMA projects. Legend: Ellipses are Java projects; rectangles are static files; normal arrows mean "depends on".
+
+![IRMA stack](images/stack.svg)
+
+### Project descriptions
+
+ * [`irma_configuration`](https://github.com/credentials/irma_configuration): contains credential descriptions, issuer descriptions, and public and possibly private keys of issuers, grouped in scheme managers
+ * [`credentials_api`](https://github.com/credentials/credentials_api): library that parses the credential and issuer descriptions from `irma_configuration`, and defines some of the semantics of attribute-based credential schemes
+ * [`credentials_idemix`](https://github.com/credentials/credentials_idemix): library containing our Idemix implementation. Also parses the Idemix public and private keys from `irma_configuration`
+ * [`irma_api_common`](https://github.com/credentials/irma_api_common): library containing classes that serve as the messages in the IRMA protocol, between the server (`irma_api_server`) and client (`irma_android_cardemu`)
+ * [`irma_api_server`](https://github.com/credentials/irma_api_server): server for issuing and verifying attributes
+ * [`irma_js`](https://github.com/credentials/irma_js): JavaScript frontend for easy handling of issuing and disclosure sessions with an `irma_api_server`
+ * [`irma_android_library`](https://github.com/credentials/irma_android_library): an Android library containing functionality shared between our Android apps
+ * [`irma_android_cardemu`](https://github.com/credentials/irma_android_cardemu): the IRMA Android client
+
 ## Support or Contact
 Having trouble with the IRMA usage or development? Contact <a href="mailto:phone@demo.irmacard.org">phone@demo.irmacard.org</a> and we’ll help you sort it out.
