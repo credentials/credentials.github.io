@@ -1,5 +1,5 @@
 digraph irma_stack {
-	graph [fontname="sans-serif" fontsize="10pt"];
+	graph [fontname="sans-serif" fontsize="10pt" bgcolor="transparent"];
 	node [fontname="sans-serif" fontsize="10pt"];
 	edge [fontname="sans-serif" fontsize="10pt"];
 	emu[label="irma_android_cardemu"]
