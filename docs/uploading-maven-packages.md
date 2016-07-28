@@ -6,9 +6,9 @@ permalink: /docs/uploading-maven-packages/
 
 The gradle build system can pull in dependencies on its own. To make it as easy as possible to work with any IRMA package, we add our own libraries to a maven repository as well. To make it as easy as possible for developers to upload packages, the maven repository is included the GitHub pages ([credentials.github.io](https://github.com/credentials/credentials.github.io/)) under `repos/maven2`. This short document describes how to upload new packages.
 
-Furthermore, when you're working from scratch, it might be useful to consider the following dependency graph:
-![IRMA dependency graph](/images/dependencies.svg)
-An arrow encodes the "is a dependency of" relationship.
+Furthermore, when you're working from scratch, it might be useful to consider the following dependency graph (an arrow encodes the "is a dependency of" relationship):
+
+![IRMA dependency graph](/images/stack.svg)
 
 ## Short guide
 
