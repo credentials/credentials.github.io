@@ -1,7 +1,7 @@
 ---
 layout: page
-title: "Proposal: IRMA without APDU's"
-permalink: /proposals/irma-without-apdus/
+title: "IRMA issuance and disclosure protocol"
+permalink: /protocols/irma-protocol/
 ---
 
 This page documents the JSON-based protocol that IRMA (more specifically, the [IRMA Android app](https://github.com/credentials/irma_android_cardemu) and the [IRMA API server](https://github.com/credentials/irma_api_server)) uses for issuing and verifying attributes.
