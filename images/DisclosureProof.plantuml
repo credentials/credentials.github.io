@@ -1,0 +1,12 @@
+@startuml
+  ServiceProvider -> ServiceProviderIRMAServer: DisclosureProofRequest
+  ServiceProviderIRMAServer -> ServiceProvider: SessionToken
+  ServiceProvider -> EndUserToken: SessionToken + APIAddress
+  EndUserToken -> ServiceProviderIRMAServer: SessionToken
+  ServiceProviderIRMAServer -> EndUserToken: RequiredAttributes
+  Enduser -> EndUserToken: ConsentDisclose
+  EndUserToken -> EndUserToken: Generate DisclosureProof
+  EndUserToken -> ServiceProviderIRMAServer: DisclosureProof
+  ServiceProviderIRMAServer -> ServiceProviderIRMAServer: Verify DisclosureProof
+  ServiceProviderIRMAServer -> ServiceProvider: Attributes
+@enduml

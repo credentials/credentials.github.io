@@ -112,6 +112,9 @@ The `irma_api_server` is a web server listening at the following paths.
 *   `DELETE /api/v2/verification/verificationID`: If the session
     exists it is deleted, and the service provider is informed of failure. Note that the token sends no reason, but this is what we want: the service provider does not need to learn if the user declined or if he does not have the required attributes.
 
+The protocol is summarized by the following diagram (many thanks for Timen Olthof!).
+
+![Disclosure diagram](/images/DisclosureProof.png)
 
 ## Issuing
 
@@ -202,3 +205,7 @@ The server listens at the following paths.
     are valid, and if the appropriate attributes were correctly disclosed, then it computes the corresponding Camenisch-Lysyanskaya signatures for each of the credentials, and returns
     these to the token, in the form of a list of `IssueSignatureMessage`s.
 *   `DELETE /api/v2/issue/issueID`: If the session exists it is deleted, and the identity provider is informed of failure.
+
+The protocol is summarized by the following diagram (many thanks for Timen Olthof!).
+
+![Disclosure diagram](/images/Issuing.png)

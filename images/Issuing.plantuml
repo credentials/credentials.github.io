@@ -1,0 +1,27 @@
+@startuml
+  ServiceProvider -> ServiceProviderIRMAServer: IssuanceRequest
+  ServiceProviderIRMAServer -> ServiceProvider: SessionToken
+  ServiceProvider -> EndUserToken: SessionToken + APIAddress
+  EndUserToken -> ServiceProviderIRMAServer: SessionToken
+  ServiceProviderIRMAServer -> EndUserToken: AttributesToBeIssued [+DisclosureRequest]
+  Enduser -> EndUserToken: ConsentIssuing [+DiscloseConsent]
+
+  group optional
+    EndUserToken -> EndUserToken: Generate DisclosureProof
+  end
+
+  EndUserToken -> ServiceProviderIRMAServer: OK [+DisclosureProof]
+  
+  group optional
+    ServiceProviderIRMAServer -> ServiceProviderIRMAServer: Verify DisclosureProof
+  end
+
+  group Idemix issuing
+    note left
+      not described in detail here
+    end note
+    ServiceProviderIRMAServer -> EndUserToken: Idemix Credential
+  end
+  
+  ServiceProviderIRMAServer -> ServiceProvider: Confirmation
+@enduml
