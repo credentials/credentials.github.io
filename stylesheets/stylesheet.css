@@ -271,8 +271,11 @@ h6 {
   color: #303030;
 }
 
-p {
+p, li {
   font-weight: 300;
+}
+
+p {
   margin-bottom: 20px;
 }
 
