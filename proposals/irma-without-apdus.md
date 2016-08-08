@@ -3,15 +3,12 @@ layout: page
 title: "Proposal: IRMA without APDU's"
 permalink: /proposals/irma-without-apdus/
 ---
-_**This document is still work in progress!**_
 
-Until recently the IRMA token has always been a smart card as it offers very high levels of security. This focus allowed the IRMA system to thrive, but also imposed some restrictions on the system. Recently, we have been exploring other token carriers, like a smart phone. To enable working with the smart card, the interface has always been defined in terms of APDUs (the low level commands that you send to your smart card). However, when working with other tokens (for example a smart phone), this is not a natural interface.
+This page documents the JSON-based protocol that IRMA (more specifically, the [IRMA Android app](https://github.com/credentials/irma_android_cardemu) and the [IRMA API server](https://github.com/credentials/irma_api_server)) uses for issuing and verifying attributes.
 
-We propose a new protocol here for requesting and sending disclosure proofs between the token and the verifier, and issuing credentials to the token, based on JSON instead of on APDU's.
+# Introduction
 
-# The setup
-
-The workflow for the user should be as follows. Suppose she wants to watch a video on IrmaTube; we assume that she already has the proper credential on her token, which we assume to be the cardemu app for now (but see the section "Smart cards" below).
+The workflow when a user discloses attributes is as follows (the workflow when issuing is almost the same). Suppose she wants to watch a video on IrmaTube; we assume that she already has the proper credential on her token, which we assume to be the IRMA Android app for now.
 
 * The IrmaTube website displays a QR code as before,
 * The user scans it,
@@ -25,15 +22,6 @@ For code reusability and maintainability, it makes sense to split the logic of t
 * The `irma_api_server` verifies the proof. If anything went wrong, it reports failure. Otherwise, it sends the attributes contained in the proof back to the service provider (the IrmaTube website), in the form of a signed JSON web token.
 
 Notice that the IrmaTube website now does almost nothing, apart from showing the QR-code; the token itself is responsible for informing its owner about what is happening. However, the service provider should be aware of the (RSA) public key with which `irma_api_server` signs the JSON web tokens, so that it can verify these.
-
-# Smart cards
-
-We can keep the smart cards in the game as follows:
-
-* We build a translator that can translate our new protocol back and forth to APDU's.
-* We endow the `irma_android_cardproxy` with this translator, and develop a similar desktop application for physical cardreaders that also uses this translator. These two apps can keep the user up-to-date through their GUI, but otherwise the card is authoritative.
-* The service provider puts the URL to the verifier server in a new URL scheme like  `irma://something/something`
-* The `irma_android_cardproxy` can scan QR codes like the cardemu can, but the desktop application will have to be notified of new sessions in some other way - perhaps the website explicitly shows the session key to the user, who can then copy and paste it into the desktop app.
 
 # The protocol
 
@@ -65,14 +53,20 @@ Credential-only proofs are supported as follows. When one of the disjunctions co
 The `irma_api_server` is a web server listening at the following paths.
 
 *   `POST /api/v2/verification`: accepts requests from service providers in the form of a JSON web token, whose payload should be of the form
+
     ~~~ json
     {
-        "data": "...",
-        "validity": "60",
-        "request": "..."
+        "iss": "Service provider name",
+        "sub": "verification_request",
+        "iat": 1453377600,
+        "sprequest": {
+            "data": "...",
+            "validity": 60,
+            "request": "..."
+        }
     }
     ~~~
-    Possibly the server accepts unsigned JWT's. Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two are optional (the default value of `validity` is 60 seconds). In response, the server returns a JSON object of the form
+    Possibly the server accepts unsigned JWT's. Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two elements of the `sprequest` are optional (the default value of `validity` is 60 seconds). In response, the server returns a JSON object of the form
 
     ~~~ json
     {
@@ -208,7 +202,3 @@ The server listens at the following paths.
     are valid, and if the appropriate attributes were correctly disclosed, then it computes the corresponding Camenisch-Lysyanskaya signatures for each of the credentials, and returns
     these to the token, in the form of a list of `IssueSignatureMessage`s.
 *   `DELETE /api/v2/issue/issueID`: If the session exists it is deleted, and the identity provider is informed of failure.
-
-# To do
-
-* Authentication between `irma_api_server` and the service provider
