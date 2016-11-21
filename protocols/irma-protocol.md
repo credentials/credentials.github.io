@@ -62,11 +62,24 @@ The `irma_api_server` is a web server listening at the following paths.
         "sprequest": {
             "data": "...",
             "validity": 60,
+            "timeout": 60,
+            "callbackUrl": "...",
             "request": "..."
         }
     }
     ~~~
-    Possibly the server accepts unsigned JWT's. Here `data` can be any string of the service provider's choosing, while `request` is a disclosure proof request (without a nonce or context). `validity` specifies how long the returned JSON web token should be valid (in seconds). Only `request` is required, the other two elements of the `sprequest` are optional (the default value of `validity` is 60 seconds). In response, the server returns a JSON object of the form
+    The fields mean the following:
+
+    *   `iss` identifies the service provider for the `irma_api_server` and the token. (`iss` is a standard JWT field, refering to the creator of the token, which in this case is, the service provider provider).
+    *   `sub` is a fixed field whose value should be `verification_request`.
+    *   `iat` is the time of the JWT creation. The server only accepts requests younger than a certain cutoff.
+    *   `data` can be any string of the service provider's choosing.
+    *   `validity` specifies how long the returned JSON web token should be valid (in seconds).
+    *   `request` is a disclosure proof request as defined above (without a nonce or context).
+    *   `timeout` specifies how long, in seconds, the server should wait for a token to contact it, before considering the disclosure proof request failed.
+    *   `callbackUrl` (optional) If provided, this URL will be, concatenated with the session token, called by the `irma_api_server` when a proof has been posted by the token. The `irma_api_server` will post the result of the IRMA session in a signed JWT to this URL (see below how this JWT is defined).
+
+    Possibly the server accepts unsigned JWT's. In response, the server returns a JSON object of the form
 
     ~~~ json
     {
