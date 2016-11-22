@@ -244,24 +244,19 @@ An example signature specification looks as follows:
 
 ~~~json
 {
+    "nonce": 123,
+    "context": 456,
     "message" : "Message to be signed",
     "messageType" : "STRING",
-    "nonce"   : "Nonce, will be combined with context and message hash to get challenge",
-    "context" : 456,
     "content": [
         {
-            "label": "Over 18",
-            "condition" : "yes",
-            "attributes": [
-                "MijnOverheid.ageLower.over18",
-                "Thalia.age.over18"
-            ],
-            "conditions" : [
-                { "MijnOverheid.ageLower.over18" : "yes"},
-                { "Thalia.age.over18" : "ja" }
-            ]
+            "label": "Name",
+            "attributes": {"irma-demo.MijnOverheid.fullName.firstname": "Johan"}
         },
-        ...
+        {
+            "label": "Over 21",
+            "attributes": ["irma-demo.MijnOverheid.ageLower.over18", "irma-demo.MijnOverheid.ageLower.over21"]
+        }
     ]
 }
 ~~~
@@ -270,19 +265,20 @@ Like with the disclosure proof request data type, the `nonce` and `context` are
 optional large integers. Each entry of `content` is a disjunction of attributes,
 along with a label that can be shown to the user of the token. The disjunctions
 themselves should be ANDed together. Besides the attributes, we can also require
-optional conditions on the values of the attributes. If these are present, then
-the signer (the token) is required to have the attribute values specified in the
-conditions. If not, then the signature won't be acceptd by the irma_api_server.
+optional conditions on the values of the attributes by specifying the attributes
+in a key-value dictionary instead of a list. If a dictionary with values is
+used, then the signer (the token) is required to have the attribute values
+specified in this dictionary. If not, then the signature won't be accepted by
+the irma_api_server.
 
-We have two type of conditions: _global_ and _local_ conditions. Global
-conditions need to hold for all the selected attributes in the disjunction,
-where local conditions are specified on a per-attribute basis. Note that local
-conditions override global conditions: if a local conditions for an attribute is
-specified, then it will override the global `default'.
+This means in the above example that a signer is required to have a `firstname`
+attribute with the value `Johan`. Furthermore, the `over18` and `over21`
+attributes need to be disclosed, but a specific value for these attributes is not
+required.
 
 If `messageType` contains the keyword _STRING_, then the `message` must contain
 a string that is the message that will be signed with the specified attributes.
-In the future, the messageType could be expanded with for example 'PDF'. In that
+In the future, the messageType could be extended with for example 'PDF'. In that
 case, the message field could contain a URL to a PDF file, which can be retrieved 
 and signed instead.
 
@@ -311,52 +307,84 @@ following paths:
     ~~~
     where `u` is the session token, like with the disclosure proofs.
 
-*   `GET /api/v2/signature/verificationID`: if `verificationID` is a
+*   `GET /api/v2/signature/sessionToken`: if `sessionToken` is a
     valid session token (i.e., it has been assigned to a signature specification
     at some point in the past), the server generates a nonce, puts this in the
     request associated to this session token, and returns this to the token.
 
-*   `POST /api/v2/signature/verificationID/proofs`: if `verificationID`
-    is a valid session token, this accepts a serialized `ProofList` object, that
-    contains one or more disclosure proofs (`ProofD`s). The proofs are verified
-    immediately, and the server informs the client (i. e., the IRMA token, not the
-    service provider) of the validity of the proofs in the form of a string. Note
-    that this disclosure proof must be a signature proof (so the message should be
-    contained in the challenge of the proof).
+*   `POST /api/v2/signature/sessionToken/proofs`: if `sessionToken`
+    is a valid session token, this accepts an IRMA signature that consists of a
+    serialized `ProofList` object, that contains one or more disclosure proofs
+    (`ProofD`s). The proofs are verified immediately, and the server informs the
+    client (i. e., the IRMA token, not the service provider) of the validity of the
+    proofs in the form of a string. Note that this disclosure proof must be a
+    signature proof (so the message should be contained in the challenge of the
+    proof).
 
-    The service provider is informed of the result in the form of a JSON web
-    token signed with our RSA private key, like in the case of diclosure proofs.
-    But this token also contains the signature, which allows the service provider to
-    store this for later use (i.e. storing a renting contract).
+    An example of a signature that corresponds to the earlier described
+    signature proof request (this should be posted by the token to the api
+    server):
 
     ~~~json
+    {    
+         "signature":
+         { 
+             "proofs": [ "List with ProofDs" ],
+             "nonce": 6.579489688380443e+23,
+             "context": 6.843305777297634e+75
+         },
+         "message": "Message to be signed",
+         "messageType": "STRING",
+         "status": "VALID",
+         "attributes":
+         {   
+             "irma-demo.MijnOverheid.fullName": "present",
+             "irma-demo.MijnOverheid.fullName.firstname": "Johan",
+             "irma-demo.MijnOverheid.ageLower": "present",
+             "irma-demo.MijnOverheid.ageLower.over18": "yes"
+         },
+         "data": "foobar"
+    }
+    ~~~
+
+    The proofs are verified immediately, and the server informs the client (i.e.,
+    the IRMA token, not the service provider) of the validity of the proofs in
+    the form of a string.
+
+    The service provider is informed of the result in the form of a JSON web
+    token signed with our RSA private key. If the proofs verified, then this token
+    contains the attributes. If there was no `validity` specified in the request
+    from the service proider, the web token's validity is set to 60 seconds. If the
+    `data` field was present then this is included in the web token in the [`jti`
+    field](https://tools.ietf.org/html/rfc7519#section-4.1.7). Such token looks
+    almost the same as with discosure proofs:
+
+    ~~~ json
     {
         "exp": 1448636691,
         "sub": "signature_result",
         "jti": "foobar",
-        "attributes": {
-            "MijnOverheid.ageLower.over18": "yes",
-            "IRMAWiki.member.email": "stuifje@kuifje.nl",
-            "MijnOverheid.fullName": "present"
+         "signature":
+         { 
+             "proofs": [ "List with ProofDs" ],
+             "nonce": 6.579489688380443e+23,
+             "context": 6.843305777297634e+75
+         },
+        "message": "Message to be signed",
+        "messageType": "STRING",
+        "attributes":
+        {
+            "irma-demo.MijnOverheid.fullName": "present",
+            "irma-demo.MijnOverheid.fullName.firstname": "Johan",
+            "irma-demo.MijnOverheid.ageLower": "present",
+            "irma-demo.MijnOverheid.ageLower.over18": "yes"
         },
         "iat": 1448636631,
-        "status": "VALID",
-    	"signature" : "Serialized prooflist",
-    	"message" : "The message that has been signed by this signature",
-        "messageType" : "string",
-        "nonce"   : "Nonce, will be combined with context and message hash to get challenge",
-        "context" : 456,
-        "condition" : { "Global condition" },
-        "conditions" : { // Disjunctionlist with conditions, optional and only needed if conditions on attributes are enforced
-        }
+        "status": "VALID"
     }
     ~~~
-    The conditions are additionally included, because storing these ensures that the
-    right conditions are met if the signature is verified later on. The nonce,
-    context, message and messageType are also included because they are needed to
-    verify the signature.
-
-*   `DELETE /api/v2/signature/verificationID`: If the session
+    
+*   `DELETE /api/v2/signature/sessiontoken`: If the session
     exists it is deleted, and the service provider is informed of failure. Note
     that the token sends no reason, but this is what we want: the service provider
     does not need to learn if the user declined or if he does not have the required
@@ -369,27 +397,15 @@ following paths:
     the status object that has been included in the json web token).
     Note that a session token is not needed to execute
     this request. Also note that the response on this request is not signed with
-    the api_server's private key: this still needs to be implemented.
+    the api_server's private key.
 
 ### Intermezzo: technical context about challenge
 
-This section contains some technical context. If you just want to use the
-protocol, you can skip this. TODO: move this section to somewhere
-else?
-
 An attribute-based signature is still a disclosure proof with a modified
-nonce. The nonce is now calculated as:
-```
-    nonce = sha256(nonce, sha256(message))
-```
+challenge. The challenge is now calculated as:
 
-As in the original paper explained, this double hashing seems unneccesary but it
-allows us to keep the changes to the existing IRMA infrastructure to a minimum.
-
-Like with disclosure proofs, this calculated nonce will be concatenated with
-the context and asn1-encoded to obtain the challenge:
 ```
-    challenge = asn1(sha256(context,nonce))
+    challenge = SHA256(ASN1Sig(nonce, SHA256(message)))
 ```
 
 The asn1 encoding makes sure that we have a clear separation between IRMA
@@ -399,9 +415,7 @@ the original paper proposed as the `dbit`.
 
 ### To do
 
-* Authentication between `irma_api_server` and the service provider
-* Review of current signature proposal
-* Remove double hashing from signatures?
-* Sign data with web token on the /signature/checksignature api
-* SP authentication with signature sessions (already done for verification by Sietse)
-* Some code clean up (mostly duplicated code between verification and signatures that can be combined)
+* timestamps in signatures
+* messageTypes other than string
+* signing 'on demand' (i.e. open a file with the irma-app to sign it without
+  using an SP or api server)
