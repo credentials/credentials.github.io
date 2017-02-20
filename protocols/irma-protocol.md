@@ -222,3 +222,200 @@ The server listens at the following paths.
 The protocol is summarized by the following diagram (many thanks for Timen Olthof!).
 
 ![Disclosure diagram](/images/Issuing.png)
+
+## Attribute-based signatures
+Besides just disclosure proofs, we can also use IRMA to produce attribute-based
+digital signatures [1].
+
+[1] : [http://www.cs.ru.nl/~brinda/publications/Space-paper.pdf](http://www.cs.ru.nl/~brinda/publications/Space-paper.pdf)
+
+Most of the times, it is important to know with _which_ attributes a statement is
+signed: this will describe the role of the signer. A person could for example
+sign a document using his/her name, but also only using the fact that he/she is
+over 18 and thus old enough to sign a contract.
+
+To determine the required attributes, a signature specification is used: this
+specification determines how a certain statement is signed in the same way as a
+disclosure proof request determines which attributes are used in a disclosure
+proof. If a service provider needs a signature from a user, it has to send this
+signature specification to the irma_api_server. 
+
+An example signature specification looks as follows:
+
+~~~json
+{
+    "nonce": 123,
+    "context": 456,
+    "message" : "Message to be signed",
+    "messageType" : "STRING",
+    "content": [
+        {
+            "label": "Name",
+            "attributes": {"irma-demo.MijnOverheid.fullName.firstname": "Johan"}
+        },
+        {
+            "label": "Over 21",
+            "attributes": ["irma-demo.MijnOverheid.ageLower.over18", "irma-demo.MijnOverheid.ageLower.over21"]
+        }
+    ]
+}
+~~~
+
+Like with the disclosure proof request data type, the `nonce` and `context` are
+optional large integers. Each entry of `content` is a disjunction of attributes,
+along with a label that can be shown to the user of the token. The disjunctions
+themselves should be ANDed together. Besides the attributes, we can also require
+optional conditions on the values of the attributes by specifying the attributes
+in a key-value dictionary instead of a list. If a dictionary with values is
+used, then the signer (the token) is required to have the attribute values
+specified in this dictionary. If not, then the signature won't be accepted by
+the irma_api_server.
+
+This means in the above example that a signer is required to have a `firstname`
+attribute with the value `Johan`. Furthermore, the `over18` and `over21`
+attributes need to be disclosed, but a specific value for these attributes is not
+required.
+
+If `messageType` contains the keyword _STRING_, then the `message` must contain
+a string that is the message that will be signed with the specified attributes.
+In the future, the messageType could be extended with for example 'PDF'. In that
+case, the message field could contain a URL to a PDF file, which can be retrieved 
+and signed instead.
+
+Like with the disclosure proofs, the irma_api_server will listen to the
+following paths:
+
+*   `POST /api/v2/signature`: accepts requests from
+    service providers of the following form:
+
+    ~~~ json
+    {
+        "data": "...",
+        "validity": "60",
+        "request": "..."
+    }
+    ~~~
+    This is the same type of request as /api/v2/verification, but the request
+    data type needs to be a signature specification instead of a disclosure proof
+    request. In response, the server returns a JSON object of the form:
+
+    ~~~ json
+    {
+        "u": "...",
+        "v": "2.0"
+    }
+    ~~~
+    where `u` is the session token, like with the disclosure proofs.
+
+*   `GET /api/v2/signature/sessionToken`: if `sessionToken` is a
+    valid session token (i.e., it has been assigned to a signature specification
+    at some point in the past), the server generates a nonce, puts this in the
+    request associated to this session token, and returns this to the token.
+
+*   `POST /api/v2/signature/sessionToken/proofs`: if `sessionToken`
+    is a valid session token, this accepts an IRMA signature that consists of a
+    serialized `ProofList` object, that contains one or more disclosure proofs
+    (`ProofD`s). The proofs are verified immediately, and the server informs the
+    client (i. e., the IRMA token, not the service provider) of the validity of the
+    proofs in the form of a string. Note that this disclosure proof must be a
+    signature proof (so the message should be contained in the challenge of the
+    proof).
+
+    An example of a signature that corresponds to the earlier described
+    signature proof request (this should be posted by the token to the api
+    server):
+
+    ~~~json
+    {    
+         "signature":
+         { 
+             "proofs": [ "List with ProofDs" ],
+             "nonce": 6.579489688380443e+23,
+             "context": 6.843305777297634e+75
+         },
+         "message": "Message to be signed",
+         "messageType": "STRING",
+         "status": "VALID",
+         "attributes":
+         {   
+             "irma-demo.MijnOverheid.fullName": "present",
+             "irma-demo.MijnOverheid.fullName.firstname": "Johan",
+             "irma-demo.MijnOverheid.ageLower": "present",
+             "irma-demo.MijnOverheid.ageLower.over18": "yes"
+         },
+         "data": "foobar"
+    }
+    ~~~
+
+    The proofs are verified immediately, and the server informs the client (i.e.,
+    the IRMA token, not the service provider) of the validity of the proofs in
+    the form of a string.
+
+    The service provider is informed of the result in the form of a JSON web
+    token signed with our RSA private key. If the proofs verified, then this token
+    contains the attributes. If there was no `validity` specified in the request
+    from the service proider, the web token's validity is set to 60 seconds. If the
+    `data` field was present then this is included in the web token in the [`jti`
+    field](https://tools.ietf.org/html/rfc7519#section-4.1.7). Such token looks
+    almost the same as with discosure proofs:
+
+    ~~~ json
+    {
+        "exp": 1448636691,
+        "sub": "signature_result",
+        "jti": "foobar",
+         "signature":
+         { 
+             "proofs": [ "List with ProofDs" ],
+             "nonce": 6.579489688380443e+23,
+             "context": 6.843305777297634e+75
+         },
+        "message": "Message to be signed",
+        "messageType": "STRING",
+        "attributes":
+        {
+            "irma-demo.MijnOverheid.fullName": "present",
+            "irma-demo.MijnOverheid.fullName.firstname": "Johan",
+            "irma-demo.MijnOverheid.ageLower": "present",
+            "irma-demo.MijnOverheid.ageLower.over18": "yes"
+        },
+        "iat": 1448636631,
+        "status": "VALID"
+    }
+    ~~~
+    
+*   `DELETE /api/v2/signature/sessiontoken`: If the session
+    exists it is deleted, and the service provider is informed of failure. Note
+    that the token sends no reason, but this is what we want: the service provider
+    does not need to learn if the user declined or if he does not have the required
+    attributes.
+
+*   `POST /api/v2/signature/checksignature`:
+    This is a simple stateless api request that allows a service provider to
+    check a signature without having IRMA software. It accepts a signature, as
+    returned in the json web token and returns a status (with the same structure as
+    the status object that has been included in the json web token).
+    Note that a session token is not needed to execute
+    this request. Also note that the response on this request is not signed with
+    the api_server's private key.
+
+### Intermezzo: technical context about challenge
+
+An attribute-based signature is still a disclosure proof with a modified
+challenge. The challenge is now calculated as:
+
+```
+    challenge = SHA256(ASN1Sig(nonce, SHA256(message)))
+```
+
+The asn1 encoding makes sure that we have a clear separation between IRMA
+disclosure proofs and IRMA signatures: in the case of signatures, we additionaly
+encode a boolean, which is set to true, in front of the challenge. This was in
+the original paper proposed as the `dbit`.
+
+### To do
+
+* timestamps in signatures
+* messageTypes other than string
+* signing 'on demand' (i.e. open a file with the irma-app to sign it without
+  using an SP or api server)
