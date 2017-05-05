@@ -146,7 +146,7 @@ Similarly to the disclosure proof request above, we define an _issuing request_ 
     "credentials": [
         {
             "credential": "MijnOverheid.ageHigher",
-            "expires": 1484481600,
+            "validity": 1484481600,
             "attributes": {
                 "over50": "yes",
                 "over60": "no",
