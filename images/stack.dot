@@ -2,16 +2,14 @@ digraph irma_stack {
 	graph [fontname="sans-serif" fontsize="10pt" bgcolor="transparent"];
 	node [fontname="sans-serif" fontsize="10pt"];
 	edge [fontname="sans-serif" fontsize="10pt"];
-	emu[label="irma_android_cardemu"]
-	ial[label="irma_android_library"]
 	ijs[label="irma_js" shape="rect"]
 	ias[label="irma_api_server"]
+	emu[label="irma_android_cardemu"]
 	iac[label="irma_api_common"]
 	ci[label="credentials_idemix"]
 	ca[label="credentials_api"]
 	conf[label="irma_configuration" shape="rect"]
-	emu->ial
-	ial->iac
+	emu->iac
 	ijs->ias[style="dashed" label=" frontend to"]
 	ias->iac
 	iac->ci

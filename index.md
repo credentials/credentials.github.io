@@ -65,7 +65,6 @@ The following image shows the relationships between the most important IRMA proj
  * [`irma_api_common`](https://github.com/credentials/irma_api_common): library containing classes that serve as the messages in the IRMA protocol, between the server (`irma_api_server`) and client (`irma_android_cardemu`)
  * [`irma_api_server`](https://github.com/credentials/irma_api_server): server for issuing and verifying attributes
  * [`irma_js`](https://github.com/credentials/irma_js): JavaScript frontend for easy handling of issuing and disclosure sessions with an `irma_api_server`
- * [`irma_android_library`](https://github.com/credentials/irma_android_library): an Android library containing functionality shared between our Android apps
  * [`irma_android_cardemu`](https://github.com/credentials/irma_android_cardemu): the IRMA Android client
 
 ## Support or Contact
