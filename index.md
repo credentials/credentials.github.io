@@ -46,12 +46,28 @@ When that works you can always look into running your own API server.
 The [API server](https://github.com/credentials/irma_api_server) handles all IRMA-specific cryptographic details of issuing and verifying attributes on behalf of the service or identity provider.
 If you wish to run your own API server you can find the code and instructions [here](https://github.com/credentials/irma_api_server).
 
+### IRMA session flow
+
+The following image shows the dataflow between the IRMA software components in a typical IRMA session.
+
+![IRMA flow](images/irmaflow.svg)
+
+Explanation of the steps:
+
+  1. The IRMA client provides a JWT containing an IRMA session request, along with success and failure callbacks to `irma_js`
+  2. `irma_js` `POST`s the JWT to the API server
+  3. The API server replies with an IRMA session token
+  4. `irma_js` renders the session token along with the URL to the API server in a QR that the IRMA app scans
+  5. The IRMA app contact the API server, and they perform the IRMA session
+  6. The API server informs `irma_js` of the result (in the case of a successful disclosure session, this includes a JWT containing the disclosed attributes)
+  7. `irma_js` informs the IRMA client via the callbacks provided in step 1, including the disclosed attributes in verification sessions
+
 <!---
 ## Adding new credentials
 New attributes can be added to the IRMA configuration project.
 --->
 
-## Dependency graph
+### Dependency graph
 
 The following image shows the relationships between the most important IRMA projects. Legend: Ellipses are Java projects; rectangles are static files; normal arrows mean "depends on".
 
