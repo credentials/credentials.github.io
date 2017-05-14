@@ -5,46 +5,47 @@ title: Getting started with IRMA
 
 IRMA is a distributed, attribute-based authentication technique which is very privacy-friendly.
 This page provides a short overview on how to start using IRMA.
-You can find more information on the IRMA project [here](https://www.irmacard.org/).
+You can find more information on the IRMA project [here](https://privacybydesign.foundation/irma).
 
-## IRMA user client
-Users will need an IRMA client to manage their attributes.
-Currently, there are two user client implementations of IRMA.
-A smart card version and a much newer Android app.
-
-### IRMA on a smart card
-IRMA development started out on a smart card.
-This code is no longer actively maintained and new users are encouraged to look at the IRMA app instead.
-However, the smart card code is still functional and you can find it here: [idemix terminal](https://github.com/credentials/idemix_terminal)
+## IRMA user token
+Users will need an IRMA token to manage their attributes.
+Currently, there are two user token implementations of IRMA.
+A [smart card version](https://github.com/credentials/idemix_terminal)
+which is no longer maintained, and a much newer and more versatile Android app.
 
 ### IRMA app
 The IRMA app is currently the most up-to-date version of user-side IRMA stuff.
 The IRMA app is available for download directly from the [Google Play store](https://play.google.com/store/apps/details?id=org.irmacard.cardemu).
-If you have no access to the Google Play store, or do not wish to get the app from there, you can also find a binary [here](https://www.irmacard.org/irmaphone/#install).
+If you have no access to the Google Play store, or do not wish to get the app from there,
+you can also find a binary [here](https://privacybydesign.foundation/irma.apk).
 Alternatively, you can build the app from the publicly available [source code](https://github.com/credentials/irma_android_cardemu).
 Be aware that only an install via the app store will automatically update to the newest version.
 
-After installing the app, users can obtain their first credentials through a self-enrollment process.
-They can either convert the data from an electronic identity document to credentials, or they can self-issue credentials online through a demo enrollment website.
-
+After installing the app, users can obtain their first credentials through a registration process.
 After obtaining attributes, users can use them to authenticate to service providers.
 Several demos can be found on [demo.irmacard.org](https://demo.irmacard.org/).
 
-More information on installing and using the IRMA app van be found [here](https://www.irmacard.org/irmaphone/).
-
+More information on installing and using the IRMA app can be found [here](https://privacybydesign.foundation/irma-begin/).
 
 ## Verifying and Issuing credentials
 If you want to verify and/or issue credentials you will need to run one of the following projects.
 
-### [IRMA JavaScript client](https://github.com/credentials/irma_js)
-[irma_js](https://github.com/credentials/irma_js) is a JavaScript client that will talk to an IRMA-API server, which does the actual verifying and issuing.
-This JavaScript client essentially connects your webpage logic to the verification/issuing process, making it very easy to deploy IRMA technology on your websites.
+### [IRMA API server](https://github.com/credentials/irma_api_server)
+The [API server](https://github.com/credentials/irma_api_server) handles all IRMA-specific
+cryptographic details of issuing and verifying attributes on behalf of the service or
+identity provider. It sits between IRMA tokens on the one hand, and authorized service or
+identity providers on the other hand. It exposes a RESTful JSON API driven by JWTs for authentication.
+The protocol that the IRMA API server and the IRMA Android app speak is documented
+[here](/protocols/irma-protocol/).
+If you wish to run your own API server you can find the code and instructions [here](https://github.com/credentials/irma_api_server).
+
+### [IRMA Javascript client](https://github.com/credentials/irma_js)
+[irma_js](https://github.com/credentials/irma_js) is a Javascript client of the
+RESTful JSON API offered by the IRMA API server, which does the actual verifying and issuing.
+This JavaScript client essentially connects your webpage logic to the verification/issuing
+process, making it very easy to deploy IRMA technology on your websites.
 The irma_js client can contact our own demo API server, so you can get started with only this JavaScript client.
 When that works you can always look into running your own API server.
-
-### [API server](https://github.com/credentials/irma_api_server)
-The [API server](https://github.com/credentials/irma_api_server) handles all IRMA-specific cryptographic details of issuing and verifying attributes on behalf of the service or identity provider.
-If you wish to run your own API server you can find the code and instructions [here](https://github.com/credentials/irma_api_server).
 
 ### IRMA session flow
 
@@ -54,11 +55,13 @@ The following image shows the dataflow between the IRMA software components in a
 
 Explanation of the steps:
 
-  1. The IRMA client provides a JWT containing an IRMA session request, along with success and failure callbacks to `irma_js`
+  1. The IRMA client (i.e., the service or identity provider wanting to verify or issue attributes) provides
+     [a JWT](protocols/irma-protocol/#the-protocol) containing an IRMA session request,
+     along with success and failure callbacks to `irma_js`
   2. `irma_js` `POST`s the JWT to the API server
   3. The API server replies with an IRMA session token
   4. `irma_js` renders the session token along with the URL to the API server in a QR that the IRMA app scans
-  5. The IRMA app contact the API server, and they perform the IRMA session
+  5. The IRMA app contact the API server, and they perform the actual IRMA session
   6. The API server informs `irma_js` of the result (in the case of a successful disclosure session, this includes a JWT containing the disclosed attributes)
   7. `irma_js` informs the IRMA client via the callbacks provided in step 1, including the disclosed attributes in verification sessions
 
@@ -81,7 +84,7 @@ The following image shows the relationships between the most important IRMA proj
  * [`irma_api_common`](https://github.com/credentials/irma_api_common): library containing classes that serve as the messages in the IRMA protocol, between the server (`irma_api_server`) and client (`irma_android_cardemu`)
  * [`irma_api_server`](https://github.com/credentials/irma_api_server): server for issuing and verifying attributes
  * [`irma_js`](https://github.com/credentials/irma_js): JavaScript frontend for easy handling of issuing and disclosure sessions with an `irma_api_server`
- * [`irma_android_cardemu`](https://github.com/credentials/irma_android_cardemu): the IRMA Android client
+ * [`irma_android_cardemu`](https://github.com/credentials/irma_android_cardemu): the IRMA Android token
 
 ## Support or Contact
-Having trouble with the IRMA usage or development? Contact <a href="mailto:phone@demo.irmacard.org">phone@demo.irmacard.org</a> and we’ll help you sort it out.
+Having trouble with the IRMA usage or development? Contact `irma 'at' privacybydesign.foundation` and we’ll help you sort it out.
