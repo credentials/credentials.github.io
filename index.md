@@ -11,11 +11,11 @@ You can find more information on the IRMA project [here](https://privacybydesign
 Users will need an IRMA token to manage their attributes.
 Currently, there are two user token implementations of IRMA.
 A [smart card version](https://github.com/credentials/idemix_terminal)
-which is no longer maintained, and a much newer and more versatile Android app.
+which is no longer maintained, and a much newer and more versatile Android and iOS app.
 
 ### IRMA app
 The IRMA app is currently the most up-to-date version of user-side IRMA stuff.
-The IRMA app is available for download directly from the [Google Play store](https://play.google.com/store/apps/details?id=org.irmacard.cardemu).
+The IRMA app is available for download directly from the [Google Play store](https://play.google.com/store/apps/details?id=org.irmacard.cardemu) and from the [Apple App Store](https://itunes.apple.com/us/app/irma-authentication/id1294092994).
 If you have no access to the Google Play store, or do not wish to get the app from there,
 you can also find a binary [here](https://privacybydesign.foundation/irma.apk).
 Alternatively, you can build the app from the publicly available [source code](https://github.com/credentials/irma_android_cardemu).
@@ -35,7 +35,7 @@ The [API server](https://github.com/credentials/irma_api_server) handles all IRM
 cryptographic details of issuing and verifying attributes on behalf of the service or
 identity provider. It sits between IRMA tokens on the one hand, and authorized service or
 identity providers on the other hand. It exposes a RESTful JSON API driven by JWTs for authentication.
-The protocol that the IRMA API server and the IRMA Android app speak is documented
+The protocol that the IRMA API server and the IRMA Android and iOS apps speak is documented
 [here](/protocols/irma-protocol/).
 If you wish to run your own API server you can find the code and instructions [here](https://github.com/credentials/irma_api_server).
 
