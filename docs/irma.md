@@ -16,6 +16,7 @@ This document presents a technical overview of the IRMA project.
 * [Issuers](#issuers)
 * [Scheme managers](#scheme-managers)
 * [IRMA PIN codes using the keyshare server](#irma-pin-codes-using-the-keyshare-server)
+* [Attribute-based signatures](#attribute-based-signatures)
 * [IRMA security properties](#irma-security-properties)
 
 ## IRMA terminology
@@ -58,7 +59,7 @@ After that, the user can disclose these attributes to other parties, who are cal
 
 The verifier can check the validity of this proof of knowledge using the issuer's *public key* that corresponds with the private key with which the issuer signed the attributes (thus, the verifier must know this public key). The verifier can tell from this that the user has at some point received the disclosed attributes from the trusted issuer. Therefore, it can trust the authenticity of the attributes. (This proof of knowledge does *not* include a full copy of the signature over the attributes, so that even if all attributes of the credential were disclosed simultaneously, the verifier can impossibly use the received attributes and proof of knowledge to disclose these attributes itself to others.)
 
-The most important IRMA projects are the [IRMA mobile app](https://github.com/credentials/irma_mobile), the [IRMA API server](https://github.com/credentials/irma_api_server) which can issue and verify IRMA attributes, and the [irma_js](https://github.com/credentials/irma_js) Javascript library which provides easy website integration for IRMA issuance and verification.
+The most important IRMA projects are the [IRMA mobile app](https://github.com/credentials/irma_mobile), the [IRMA API server](https://github.com/credentials/irma_api_server) which can issue and verify IRMA attributes, and the [irma_js](https://github.com/credentials/irma_js) Javascript library which provides easy website integration for IRMA issuance and verification. How these components generally interact during disclosures or issuance sessions is depected in [this diagram](https://credentials.github.io/#irma-session-flow).
 
 ## Credential types
 
@@ -157,6 +158,20 @@ Summarizing, the keyshare server increases the binding between the attributes an
 
 Each scheme manager can decide for itself whether or not to use a keyshare server. Currently, however, due to a limitation in the IRMA protocol only one keyshare server can be involved simultaneously in IRMA sessions. This will be solved in future new versions of the IRMA app and the IRMA API server.
 
+## Attribute-based signatures
+
+Apart from attribute disclosure, IRMA also supports *attribute-based signatures*: a digital signature with IRMA attributes attached to it, on some document or string (more accurately this can generally be any set of bytes, though currently IRMA only support strings). The IRMA app can create such signatures with any of the attributes that it contains. The validity of such a signature can be verified using the Idemix public keys of the issuers of the used attributes, and valid attribute-based signatures can only be created using valid credentials. Contrary to [disclosure proofs](#cryptographic-entities) which are tied to an authentication session, and thus of no more use afterwards, attribute-based signatures are attached to the document that they sign, so their validity is useful as long as the signed document exist. IRMA attribute-based signatures have the same properties as conventional (non-attribute-based) [digital signatures](https://en.wikipedia.org/wiki/Digital_signature) such as non-repudiation, integrity of the signed message, and unforgeability with respect to the issuer private key. In addition, the attributes are cryptographically verifiably attached to the signature and message.
+
+IRMA attribute-based signatures can be used in any case where conventional (digital or conventional "wet") signatures are used and in which it is necessary to know something about the signature creator. For example:
+
+* A doctor could attach his name and "I am a doctor"-attribute to a medical prescription.
+* Teachers could sign student grades with their "I am a teacher"-attribute.
+* If a bank were to issue bank account numbers as an attribute to bank account owners, then a bank account owner could attach her account number attribute to a statement like "I transfer $10 to account 424242", effectively creating a cheque.
+
+Technically, IRMA attribute-based signatures are very similar to disclosure proofs. As mentioned earlier IRMA disclosures use a challenge-response protocol: the verifier generates a random number called the nonce and sends it to the IRMA app, whose response has to take this nonce into account in a precise fashion (this is achieved using the [Fiat-Shamir heuristic](https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic)). More precisely, the disclosure proof is a digital signature on the nonce that was used; if the nonce was freshly generated then the verifier can be sure that the attribute owner is actually present instead of replaying an earlier or eavesdropped disclosure proof. An IRMA attribute-based signature is the same except that not a nonce but an actual message is signed (or rather its SHA256 hash).
+
+Currently IRMA only supports creating attribute-based signatures on strings, although we plan to support other types of documents as well. They can be created using [irma_js](https://github.com/credentials/irma_js) and verified using the [IRMA API server](https://github.com/credentials/irma_api_server) almost the same as disclosure proofs. A desktop application to create a request for IRMA attribute-based signatures is [in development](https://github.com/privacybydesign/irma_signature_app). An online demo (using [demo attributes](https://demo.irmacard.org/tomcat/irma_api_server/examples/issue-all.html)) is available [here](https://demo.irmacard.org/tomcat/irma_api_server/examples/sign.html).
+
 ## IRMA security properties
 
 Credential unforgeability
@@ -181,3 +196,15 @@ No privacy hotspots
 :    When a user discloses IRMA attributes to a verifier, the attributes are sent directly from the user to the verifier without passing through any central party.
 
 It must be mentioned that these properties only hold assuming that our software contains no bugs that break these properties. For this reason all of the IRMA software is open source so that anyone can verify its correctness. We encourage anyone to inspect the IRMA source code, and inform us of any errors that might lessen security or other aspects of the functionality.
+
+## Other resources
+
+* Website of the [Privacy by Design Foundation](http://privacybydesign.foundation/), the creators and maintainers of IRMA
+  * An [introduction to IRMA](https://privacybydesign.foundation/irma-start/) for IRMA app users
+  * A general and more complete [introduction to IRMA](https://privacybydesign.foundation/irma-explanation/)
+  * [Live IRMA demos](https://privacybydesign.foundation/demo-en/)
+* The Android and iOS [IRMA apps](https://privacybydesign.foundation/download-en/)
+* All IRMA source code is open and freely available [here](https://github.com/privacybydesign) and [here](https://github.com/privacybydesign)
+  * Our Idemix implementations in [Java](https://github.com/credentials/credentials_idemix) and [Go](https://github.com/privacybydesign/irmago)
+* IRMA issuance and disclosure [protocol documentation](https://credentials.github.io/protocols/irma-protocol/)
+* Diagram of the interactions in a typical [IRMA session](https://credentials.github.io/#irma-session-flow)
