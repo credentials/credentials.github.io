@@ -18,6 +18,7 @@ This document presents a technical overview of the IRMA project.
 * [IRMA PIN codes using the keyshare server](#irma-pin-codes-using-the-keyshare-server)
 * [Attribute-based signatures](#attribute-based-signatures)
 * [IRMA security properties](#irma-security-properties)
+* [Other resources](#other-resources)
 
 ## IRMA terminology
 
