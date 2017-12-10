@@ -39,6 +39,7 @@ This document presents a technical overview of the IRMA project.
   * *Idemix private key*: used by the issuer to sign a credential in the issuance protocol.
   * *Idemix public key*: used by a verifier when attributes are disclosed to it, in order to establish that the disclosed attributes have been signed using the corresponding Idemix pivate key.
 * *Disclosure proof*: a set of disclosed attributes, along with a proof of knowledge showing that these disclosed attributes originated from a credential that was validly signed by the issuer.
+* [*Attribute-based signature*](#attribute-based-signatures): a digital signature, with IRMA attributes cryptographically attached to it, on some document or message.
 
 ### Core software projects
 
