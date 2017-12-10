@@ -28,8 +28,8 @@ This document presents a technical overview of the IRMA project.
 * *Service provider*: a party wanting to verify someone's attributes (in order to provide some service).
 * *Identity provider*: a party wanting to issue attributes to someone.
 * *Issuer*: uses an Idemix private key in order to issue credentials to a client, when instructed to by an identity provider
-* *Requestor*: the service or identity provider that wants to issue attributes to someone or verify someone's attributes.
-* *Scheme manager*: distributes Idemix public keys to clients and requestors; decides which issuers may join its domain and what credential types they may issue.
+* *Requestor*: the service or identity provider that wants to, respectively, verify someone's attributes or issue attributes to them.
+* *Scheme manager*: distributes Idemix public keys, credential types and issuer information to clients and requestors; also decides which issuers may join its domain and what credential types they may issue.
 
 ### Cryptographic entities
 
@@ -61,6 +61,8 @@ After that, the user can disclose these attributes to other parties, who are cal
 
 The verifier can check the validity of this proof of knowledge using the issuer's *public key* that corresponds with the private key with which the issuer signed the attributes (thus, the verifier must know this public key). The verifier can tell from this that the user has at some point received the disclosed attributes from the trusted issuer. Therefore, it can trust the authenticity of the attributes. (This proof of knowledge does *not* include a full copy of the signature over the attributes, so that even if all attributes of the credential were disclosed simultaneously, the verifier can impossibly use the received attributes and proof of knowledge to disclose these attributes itself to others.)
 
+In addition to attribute disclosure, users can also attach their attributes to messages in an *IRMA attribute-based signature*. This is explained in more detail [below](#attribute-based-signatures).
+
 The most important IRMA projects are the [IRMA mobile app](https://github.com/credentials/irma_mobile), the [IRMA API server](https://github.com/credentials/irma_api_server) which can issue and verify IRMA attributes, and the [irma_js](https://github.com/credentials/irma_js) Javascript library which provides easy website integration for IRMA issuance and verification. How these components generally interact during disclosures or issuance sessions is depicted in [this diagram](https://credentials.github.io/#irma-session-flow).
 
 ## Credential types
@@ -78,13 +80,13 @@ In this table, the right column are the attribute values which are stored and si
 
 #### The metadata attribute
 
-In IRMA, each credential always contain a special attribute called the **metadata attribute**, which must always be disclosed whenever other attributes are disclosed from this credential. This metadata attribute contains:
+In IRMA, each credential always contain a special attribute called the *metadata attribute*, which must always be disclosed whenever other attributes are disclosed from this credential. This metadata attribute contains:
 
 * which credential type this credential is an instance of (from which it follows by which issuer this credential was issued),
 * the date at which this credential was issued,
 * the expiry date of this credential.
 
-In order to lessen linkability issues (see the security properties section below), the issuance and expiry dates are always chosen to fall on the boundary of an *epoch*, which is one week.
+In order to lessen linkability issues (see the [security properties](#irma-security-properties) section below), the issuance and expiry dates are always chosen to fall on the boundary of an *epoch*, which is one week.
 
 #### The secret key attribute
 
