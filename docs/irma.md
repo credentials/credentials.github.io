@@ -1,4 +1,7 @@
-# IRMA technical documentation
+---
+layout: page
+title: IRMA technical documentation
+---
 
 This document presents a technical overview of the IRMA project.
 

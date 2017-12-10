@@ -1,11 +1,12 @@
 ---
 layout: page
-title: Getting started with IRMA
+title: Technical introduction to IRMA
 ---
 
 IRMA is a distributed, attribute-based authentication technique which is very privacy-friendly.
 This page provides a short overview on how to start using IRMA.
-You can find more information on the IRMA project [here](https://privacybydesign.foundation/irma).
+You can find more general information on the IRMA project [here](https://privacybydesign.foundation/irma).
+A much more detailed technical introduction to IRMA is available [here](/docs/irma.html)
 
 ## IRMA user token
 Users will need an IRMA token to manage their attributes.
@@ -18,7 +19,7 @@ The IRMA app is currently the most up-to-date version of user-side IRMA stuff.
 The IRMA app is available for download directly from the [Google Play store](https://play.google.com/store/apps/details?id=org.irmacard.cardemu) and from the [Apple App Store](https://itunes.apple.com/us/app/irma-authentication/id1294092994).
 If you have no access to the Google Play store, or do not wish to get the app from there,
 you can also find a binary [here](https://privacybydesign.foundation/irma.apk).
-Alternatively, you can build the app from the publicly available [source code](https://github.com/credentials/irma_android_cardemu).
+Alternatively, you can build the app from the publicly available [source code](https://github.com/privacybydesign/irma_mobile).
 Be aware that only an install via the app store will automatically update to the newest version.
 
 After installing the app, users can obtain their first credentials through a registration process.
@@ -28,7 +29,7 @@ Several demos can be found on [demo.irmacard.org](https://demo.irmacard.org/).
 More information on installing and using the IRMA app can be found [here](https://privacybydesign.foundation/irma-begin/).
 
 ## Verifying and Issuing credentials
-If you want to verify and/or issue credentials you will need to run one of the following projects.
+If you want to verify and/or issue credentials you can use the following projects.
 
 ### [IRMA API server](https://github.com/credentials/irma_api_server)
 The [API server](https://github.com/credentials/irma_api_server) handles all IRMA-specific
@@ -85,6 +86,12 @@ The following image shows the relationships between the most important IRMA proj
  * [`irma_api_server`](https://github.com/credentials/irma_api_server): server for issuing and verifying attributes
  * [`irma_js`](https://github.com/credentials/irma_js): JavaScript frontend for easy handling of issuing and disclosure sessions with an `irma_api_server`
  * [`irma_android_cardemu`](https://github.com/credentials/irma_android_cardemu): the IRMA Android token
+
+Additionally:
+
+* [`irma_mobile`](https://github.com/privacybydesign/irma_mobile): A cross-platform iOS and Android mobile IRMA app,
+* [`irma_mobile`](https://github.com/privacybydesign/irmago): the underlying IRMA client implementation in Go,
+* [`gabi`](https://github.com/mhe/gabi), Idemix implementation in Go used by `irmago`.
 
 ## Support or Contact
 Having trouble with the IRMA usage or development? Contact `irma 'at' privacybydesign.foundation` and we’ll help you sort it out.
