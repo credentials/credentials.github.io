@@ -90,7 +90,7 @@ The following image shows the relationships between the most important IRMA proj
 Additionally:
 
 * [`irma_mobile`](https://github.com/privacybydesign/irma_mobile): A cross-platform iOS and Android mobile IRMA app,
-* [`irma_mobile`](https://github.com/privacybydesign/irmago): the underlying IRMA client implementation in Go,
+* [`irmago`](https://github.com/privacybydesign/irmago): the underlying IRMA client implementation in Go,
 * [`gabi`](https://github.com/mhe/gabi), Idemix implementation in Go used by `irmago`.
 
 ## Support or Contact
