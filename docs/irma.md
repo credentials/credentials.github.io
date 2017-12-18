@@ -47,15 +47,15 @@ This document presents a technical overview of the IRMA project.
 
 ### Core software projects
 
-* [IRMA mobile app](https://github.com/credentials/irma_mobile): (mobile) application that receives attributes, and can disclose them.
-* [IRMA API server](https://github.com/credentials/irma_api_server): software that issues attributes to a token or verifies attributes from a token.
-* [irma_js](https://github.com/credentials/irma_js): javascript library acting as glue between an IRMA API server and the requestor's website, allowing the requestor to instruct an API server to issue or verify attributes.
+* [IRMA mobile app](https://github.com/privacybydesign/irma_mobile): (mobile) application that receives attributes, and can disclose them.
+* [IRMA API server](https://github.com/privacybydesign/irma_api_server): software that issues attributes to a token or verifies attributes from a token.
+* [irma_js](https://github.com/privacybydesign/irma_js): javascript library acting as glue between an IRMA API server and the requestor's website, allowing the requestor to instruct an API server to issue or verify attributes.
 
 ## Overview
 
 IRMA is at its core a set of software projects implementing the Idemix attribute-based credential scheme. An *attribute* is a statement or property about a person, such as "I am over 18 years old" or "my name is John Doe".
 
-These attributes are grouped together in a *credential*. In attribute-based credential schemes such as Idemix, such a credential can be issued to a user by a trusted party called the *issuer*. This issuer creates a digital signature over the credential and its containing attributes using its *private key*. The user receives the credential as well as the issuer's signature in her [IRMA mobile app](https://github.com/credentials/irma_mobile).
+These attributes are grouped together in a *credential*. In attribute-based credential schemes such as Idemix, such a credential can be issued to a user by a trusted party called the *issuer*. This issuer creates a digital signature over the credential and its containing attributes using its *private key*. The user receives the credential as well as the issuer's signature in her [IRMA mobile app](https://github.com/privacybydesign/irma_mobile).
 
 After that, the user can disclose these attributes to other parties, who are called *verifiers*, selectively showing some and hiding the other attributes from the credential. The verifier then receives the disclosed attributes, as well as a *proof of knowledge* which proves to the verifier that the user
 
@@ -66,11 +66,11 @@ The verifier can check the validity of this proof of knowledge using the issuer'
 
 In addition to attribute disclosure, users can also attach their attributes to messages in an *IRMA attribute-based signature*. This is explained in more detail [below](#attribute-based-signatures).
 
-The most important IRMA projects are the [IRMA mobile app](https://github.com/credentials/irma_mobile), the [IRMA API server](https://github.com/credentials/irma_api_server) which can issue and verify IRMA attributes, and the [irma_js](https://github.com/credentials/irma_js) Javascript library which provides easy website integration for IRMA issuance and verification. How these components generally interact during disclosures or issuance sessions is depicted in [this diagram](https://credentials.github.io/#irma-session-flow).
+The most important IRMA projects are the [IRMA mobile app](https://github.com/privacybydesign/irma_mobile), the [IRMA API server](https://github.com/privacybydesign/irma_api_server) which can issue and verify IRMA attributes, and the [irma_js](https://github.com/privacybydesign/irma_js) Javascript library which provides easy website integration for IRMA issuance and verification. How these components generally interact during disclosures or issuance sessions is depicted in [this diagram](https://credentials.github.io/#irma-session-flow).
 
 ## Credential types
 
-In IRMA, each credential is an instance of a *credential type*. A credential type specifies (among other things) how many attributes its instances have, what their names are, and by which issuer instances of this credential type are issued. Credential types are not shared between issuers: even if two issuers would issue two credential types with the same name and with the same amount of attributes having the same names, they still are distinct credential types. [Here](https://github.com/credentials/pbdf-schememanager/blob/translate/pbdf/Issues/irmatube/description.xml) is an example of such a credential type, defining the "IRMATube" credential type which is issued and verified in [this IRMA demo](https://privacybydesign.foundation/demo/irmaTube/). Schematically, an instance of such a credential type would look as follows.
+In IRMA, each credential is an instance of a *credential type*. A credential type specifies (among other things) how many attributes its instances have, what their names are, and by which issuer instances of this credential type are issued. Credential types are not shared between issuers: even if two issuers would issue two credential types with the same name and with the same amount of attributes having the same names, they still are distinct credential types. [Here](https://github.com/privacybydesign/pbdf-schememanager/blob/translate/pbdf/Issues/irmatube/description.xml) is an example of such a credential type, defining the "IRMATube" credential type which is issued and verified in [this IRMA demo](https://privacybydesign.foundation/demo/irmaTube/). Schematically, an instance of such a credential type would look as follows.
 
 | Attribute name | Attribute value |
 | -------------- | --------------- |
@@ -108,13 +108,13 @@ Each IRMA issuer has an Idemix private key, which it must keep secret as it is u
 
 Within the IRMA ecosystem, every party (the issuers, verifiers and users) must be aware of the credential types including the names of all attributes, and the issuers and their public keys. It is the task of the *scheme manager* to determine and distribute this information to all parties.
 
-The [Privacy by Design Foundation](https://privacybydesign.foundation/), which develops IRMA and issues a basic set of attributes, operates such a scheme manager (namely, the default one that is hardcoded into the IRMA app). In more detail, the main task of the scheme manager is to maintain a directory structure [such as this one](https://github.com/credentials/pbdf-schememanager/tree/translate), which contains:
+The [Privacy by Design Foundation](https://privacybydesign.foundation/), which develops IRMA and issues a basic set of attributes, operates such a scheme manager (namely, the default one that is hardcoded into the IRMA app). In more detail, the main task of the scheme manager is to maintain a directory structure [such as this one](https://github.com/privacybydesign/pbdf-schememanager/tree/translate), which contains:
  
 * All information about all issuers that fall under this scheme including their logos,
 * The Idemix public keys of said issuers,
 * All credential types that these issuers may issue, including their logos.
 
-This entire directory structure is signed using an (ECDSA) private-public keypair that the scheme manager has for this purpose. For more information about the layout that this directory tree must have, see this [demo scheme manager](https://github.com/credentials/irma-demo-schememanager).
+This entire directory structure is signed using an (ECDSA) private-public keypair that the scheme manager has for this purpose. For more information about the layout that this directory tree must have, see this [demo scheme manager](https://github.com/privacybydesign/irma-demo-schememanager).
 
 A copy of this directory structure is hardcoded into the IRMA app. Another copy is hosted online ([example](http://privacybydesign.foundation/schememanager/pbdf/description.xml)). When the IRMA app encounters an issuer, credential type or public key during an IRMA session that it has not seen before, it downloads it from this website (also verifying the tree's ECDSA signature).
 
@@ -122,12 +122,12 @@ All of this information is thus signed by as well as distributed by the scheme m
 
 As mentioned above, the Privacy by Design Foundation operates the scheme manager which is hardcoded by default in the IRMA app. However, anyone can create their own IRMA scheme manager. At minimum the following must be done:
 
-* Create a directory structure like the one linked to above (you can use this [scheme manager tool](https://github.com/credentials/irmago/tree/master/schememgr) to generate an ECDSA public-private keypair and sign the directory tree);
+* Create a directory structure like the one linked to above (you can use this [scheme manager tool](https://github.com/privacybydesign/irmago/tree/master/schememgr) to generate an ECDSA public-private keypair and sign the directory tree);
 * Define at least one issuer and generate its Idemix public-private keypair (using e.g. this [irmatool](https://github.com/mhe/irmatool)), putting the public key in the directory structure;
 * Define at least one credential type that this issuer will issue;
 * Compile a version of the IRMA app with this directory tree hardcoded in it; *or* host the tree online, craft a special QR pointing to this URL and scan this QR with your IRMA app;
-* Host an [IRMA API server](https://github.com/credentials/irma_api_server) that will issue and verify your credential type (as this API server will issue credentials it must have a copy of the scheme manager directory tree that includes the Idemix private keys);
-* Create a website using [irma_js](https://github.com/credentials/irma_js) that will issue and verify instances of your credential type.
+* Host an [IRMA API server](https://github.com/privacybydesign/irma_api_server) that will issue and verify your credential type (as this API server will issue credentials it must have a copy of the scheme manager directory tree that includes the Idemix private keys);
+* Create a website using [irma_js](https://github.com/privacybydesign/irma_js) that will issue and verify instances of your credential type.
 
 ## IRMA PIN codes using the keyshare server
 
@@ -177,7 +177,7 @@ IRMA attribute-based signatures can be used in any case where conventional (digi
 
 Technically, IRMA attribute-based signatures are very similar to disclosure proofs. As mentioned earlier IRMA disclosures use a challenge-response protocol: the verifier generates a random number called the nonce and sends it to the IRMA app, whose response has to take this nonce into account in a precise fashion (this is achieved using the [Fiat-Shamir heuristic](https://en.wikipedia.org/wiki/Fiat%E2%80%93Shamir_heuristic)). More precisely, the disclosure proof is a digital signature on the nonce that was used; if the nonce was freshly generated then the verifier can be sure that the attribute owner is actually present instead of replaying an earlier or eavesdropped disclosure proof. An IRMA attribute-based signature is the same except that not a nonce but an actual message is signed (or rather its SHA256 hash).
 
-Currently IRMA only supports creating attribute-based signatures on strings, although we plan to support other types of documents as well. They can be created using [irma_js](https://github.com/credentials/irma_js) and verified using the [IRMA API server](https://github.com/credentials/irma_api_server) almost the same as disclosure proofs. A desktop application to create a request for IRMA attribute-based signatures is [in development](https://github.com/privacybydesign/irma_signature_app). An online demo (using [demo attributes](https://demo.irmacard.org/tomcat/irma_api_server/examples/issue-all.html)) is available [here](https://demo.irmacard.org/tomcat/irma_api_server/examples/sign.html).
+Currently IRMA only supports creating attribute-based signatures on strings, although we plan to support other types of documents as well. They can be created using [irma_js](https://github.com/privacybydesign/irma_js) and verified using the [IRMA API server](https://github.com/privacybydesign/irma_api_server) almost the same as disclosure proofs. A desktop application to create a request for IRMA attribute-based signatures is [in development](https://github.com/privacybydesign/irma_signature_app). An online demo (using [demo attributes](https://demo.irmacard.org/tomcat/irma_api_server/examples/issue-all.html)) is available [here](https://demo.irmacard.org/tomcat/irma_api_server/examples/sign.html).
 
 ## IRMA security properties
 
@@ -211,7 +211,7 @@ It must be mentioned that these properties only hold assuming that our software 
   * A general and more complete [introduction to IRMA](https://privacybydesign.foundation/irma-explanation/)
   * [Live IRMA demos](https://privacybydesign.foundation/demo-en/)
 * The Android and iOS [IRMA apps](https://privacybydesign.foundation/download-en/)
-* All IRMA source code is open and freely available [here](https://github.com/privacybydesign) and [here](https://github.com/credentials)
-  * Idemix implementations in [Java](https://github.com/credentials/credentials_idemix) and [Go](https://github.com/mhe/gabi)
+* All IRMA source code is open and freely available [here](https://github.com/privacybydesign)
+  * Idemix implementations in [Java](https://github.com/privacybydesign/credentials_idemix) and [Go](https://github.com/mhe/gabi)
 * IRMA issuance and disclosure [protocol documentation](https://credentials.github.io/protocols/irma-protocol/)
 * Diagram of the interactions in a typical [IRMA session](https://credentials.github.io/#irma-session-flow)
