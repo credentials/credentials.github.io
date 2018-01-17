@@ -70,7 +70,7 @@ The most important IRMA projects are the [IRMA mobile app](https://github.com/pr
 
 ## Credential types
 
-In IRMA, each credential is an instance of a *credential type*. A credential type specifies (among other things) how many attributes its instances have, what their names are, and by which issuer instances of this credential type are issued. Credential types are not shared between issuers: even if two issuers would issue two credential types with the same name and with the same amount of attributes having the same names, they still are distinct credential types. [Here](https://github.com/privacybydesign/pbdf-schememanager/blob/translate/pbdf/Issues/irmatube/description.xml) is an example of such a credential type, defining the "IRMATube" credential type which is issued and verified in [this IRMA demo](https://privacybydesign.foundation/demo/irmaTube/). Schematically, an instance of such a credential type would look as follows.
+In IRMA, each credential is an instance of a *credential type*. A credential type specifies (among other things) how many attributes its instances have, what their names are, and by which issuer instances of this credential type are issued. Credential types are not shared between issuers: even if two issuers would issue two credential types with the same name and with the same amount of attributes having the same names, they still are distinct credential types. [Here](https://github.com/privacybydesign/pbdf-schememanager/blob/master/pbdf/Issues/irmatube/description.xml) is an example of such a credential type, defining the "IRMATube" credential type which is issued and verified in [this IRMA demo](https://privacybydesign.foundation/demo/irmaTube/). Schematically, an instance of such a credential type would look as follows.
 
 | Attribute name | Attribute value |
 | -------------- | --------------- |
@@ -108,7 +108,7 @@ Each IRMA issuer has an Idemix private key, which it must keep secret as it is u
 
 Within the IRMA ecosystem, every party (the issuers, verifiers and users) must be aware of the credential types including the names of all attributes, and the issuers and their public keys. It is the task of the *scheme manager* to determine and distribute this information to all parties.
 
-The [Privacy by Design Foundation](https://privacybydesign.foundation/), which develops IRMA and issues a basic set of attributes, operates such a scheme manager (namely, the default one that is hardcoded into the IRMA app). In more detail, the main task of the scheme manager is to maintain a directory structure [such as this one](https://github.com/privacybydesign/pbdf-schememanager/tree/translate), which contains:
+The [Privacy by Design Foundation](https://privacybydesign.foundation/), which develops IRMA and issues a basic set of attributes, operates such a scheme manager (namely, the default one that is hardcoded into the IRMA app). In more detail, the main task of the scheme manager is to maintain a directory structure [such as this one](https://github.com/privacybydesign/pbdf-schememanager), which contains:
  
 * All information about all issuers that fall under this scheme including their logos,
 * The Idemix public keys of said issuers,
