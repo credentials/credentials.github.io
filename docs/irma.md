@@ -212,6 +212,6 @@ It must be mentioned that these properties only hold assuming that our software 
   * [Live IRMA demos](https://privacybydesign.foundation/demo-en/)
 * The Android and iOS [IRMA apps](https://privacybydesign.foundation/download-en/)
 * All IRMA source code is open and freely available [here](https://github.com/privacybydesign)
-  * Idemix implementations in [Java](https://github.com/privacybydesign/credentials_idemix) and [Go](https://github.com/mhe/gabi)
+  * Idemix implementations in [Java](https://github.com/privacybydesign/irma_api_common) and [Go](https://github.com/mhe/gabi)
 * IRMA issuance and disclosure [protocol documentation](https://credentials.github.io/protocols/irma-protocol/)
 * Diagram of the interactions in a typical [IRMA session](https://credentials.github.io/#irma-session-flow)
