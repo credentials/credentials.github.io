@@ -38,11 +38,11 @@ Notice that the IRMATube website has to do very little: it shows the QR code and
 
 # The protocol
 
-Below we specify the protocol and API endpoints of the `irma_api_server` for all three kinds of IRMA session: verification of attributes, issuance of attributes, and creation of attribute-based signatures. Instead of fully describe the more technical datatypes we sometimes link to their Java equvalent in the IRMA Java implementation, as in for example [`ProofD`](https://github.com/privacybydesign/irma_api_common/blob/master/src/main/java/org/irmacard/credentials/idemix/proofs/ProofD.java) for a disclosure proof.
+Below we specify the protocol and API endpoints of the `irma_api_server` for all three kinds of IRMA session: verification of attributes, issuance of attributes, and creation of attribute-based signatures. Instead of fully describe the more technical datatypes we sometimes link to their Java equvalent in the IRMA Java implementation, as in for example [`ProofD`](https://github.com/privacybydesign/irma_api_common/blob/master/src/main/java/org/irmacard/credentials/idemix/proofs/ProofD.java) for a disclosure proof. (Each of these messages have a corresponding struct in the IRMA Go implementation, i.e., in [`gabi`](https://github.com/mhe/gabi) or [`irmago`](https://github.com/privacybydesign/irmago)).
 
 ## Verification
 
-We first focus on the verification protocol between the `irma_api_server` and the client. We first define a _disclosure proof request_ data type, that looks as follows.
+We start with the verification protocol between the `irma_api_server` and the client. We first define a _disclosure proof request_ data type, that looks as follows.
 
 ~~~ json
 {
@@ -73,7 +73,7 @@ The service provider can also demand that certain attributes have pre-determined
 ~~~
 The client's disclosure proof is then only considered valid by the `irma_api_server` if the disclosure proof created by the client contains, in this case, either an instance of `irma-demo.MijnOverheid.ageLower.over18` with the value `yes`, or `irma-demo.Thalia.age.over18` with the value `Yes`.
 
-Credential-only proofs are supported as follows. When one of the disjunctions contains an identifier of the form `schememanager.issuer.credential` in the `attributes` list (for example, `irma-demo.MijnOverheid.ageLower`), the client should disclose none of the attributes contained in the credential apart from the metadata attribute. Since the metadata attribute is invisible to the user, this means that from the perspective of the user no attributes of the credential are disclosed, so that he only proves possession of the credential.
+IRMA also supports credential-only proofs, in which the client proves ownership of a credential without disclosing any of the contained attributes, as follows. When one of the disjunctions contains an identifier of the form `schememanager.issuer.credential` in the `attributes` list (for example, `irma-demo.MijnOverheid.ageLower`), the client should disclose none of the attributes contained in the credential apart from the metadata attribute. Since the metadata attribute is invisible to the user, this means that from the perspective of the user no attributes of the credential are disclosed, so that she only proves possession of the credential.
 
 The `irma_api_server` is a web server listening at the following paths.
 
@@ -82,6 +82,7 @@ The `irma_api_server` is a web server listening at the following paths.
     ~~~ json
     {
         "iss": "Service provider name",
+        "kid": "service_provider_name",
         "sub": "verification_request",
         "iat": 1453377600,
         "sprequest": {
@@ -96,6 +97,7 @@ The `irma_api_server` is a web server listening at the following paths.
     The fields mean the following:
 
     *   `iss` identifies the service provider for the `irma_api_server` and the client. (`iss` is a standard JWT field, refering to the creator of the token, which in this case is, the service provider provider).
+    *   `kid` is used by the `irma_api_server` to lookup the service provider's public key with which to verify its JWT. If this field is absent, `iss` is used instead.
     *   `sub` is a fixed field whose value should be `verification_request`.
     *   `iat` is the time of the JWT creation. The server only accepts requests younger than a certain cutoff.
     *   `data` can be any string of the service provider's choosing.
@@ -104,15 +106,19 @@ The `irma_api_server` is a web server listening at the following paths.
     *   `timeout` specifies how long, in seconds, the server should wait for a client to contact it, before considering the disclosure proof request failed.
     *   `callbackUrl` (optional) If provided, this URL will be, concatenated with the session token, called by the `irma_api_server` when a proof has been posted by the client. The `irma_api_server` will post the result of the IRMA session in a signed JWT to this URL (see below how this JWT is defined).
 
-    Possibly the server accepts unsigned JWT's. In response, the server returns a JSON object of the form
+    Possibly the `irma_api_server` accepts unsigned JWT's. If not, then it keeps track of a list specifying which service provider may verify which attributes, and what the value of the `iss` field must be for each of them.
+
+    In response, the server returns a JSON object of the form
 
     ~~~ json
     {
+        "irmaqr": "disclosing",
         "u": "...",
-        "v": "2.3"
+        "v": "2.0",
+        "vmax": "2.3"
     }
     ~~~
-    where `u` is the session token (`v` is a fixed value numbering the API version). It is the responsibility of the service provider to prepend the url to the api server to the session token `u`, so that the client knows where to find the api server, and then to forward this to the client.
+    where `u` is the session token, `v` is the lowest API version supported by the `irma_api_server`, and `vmax` is the highest API version supported by the `irma_api_server`. The value of `irmaqr` is always `disclosing` for disclosure sessions. It is the responsibility of the service provider to prepend the url to the api server to the session token `u`, so that the client knows where to find the api server, and then to forward this to the client.
 
 *   `GET /api/v2/verification/verificationID`: if `verificationID` is a
     valid session token (i.e., it has been assigned to a disclosure proof request at some point in the past), the server generates a nonce, puts this in the disclosure proof request associated to this session token, and returns this to the client.
@@ -167,9 +173,9 @@ The protocol is summarized by the following diagram (many thanks to Timen Olthof
 
 The workflow here will be much the same as with disclosing. The `irma_api_server` sits between the client and the identity provider, handling all IRMA-specifics of issuing attributes to the client on behalf of the identity provider. In more detail, the following happens:
 
-* The identity provider informs the `irma_api_server` that it wants to issue certain attributes with certain values to a client. These may be attributes from more than one credential-type. If the identity provider is authorized for this, and the `irma_api_server` has the appropriate Idemix secret keys, then the `irma_api_server` returns a session token.
+* The identity provider informs the `irma_api_server` that it wants to issue certain attributes with certain values to a client. These may be attributes from more than one credential type. If the identity provider is authorized for this, and the `irma_api_server` has the appropriate Idemix secret keys, then the `irma_api_server` returns a session token.
 * The identity provider informs the client of this session token, who then contacts `irma_api_server` mentioning the session token. `irma_api_server` looks up the attributes that the identity provider wants issued and sends these (unsigned) to the client along with a nonce.
-* If the client agrees to receive this credentials, then it engages in the Idemix issuing protocol with the `irma_api_server` normally, where the client uses this nonce in its first message.
+* If the client agrees to receive this credentials, then it engages in the Idemix issuing protocol with the `irma_api_server`, where the client uses this nonce in its first message.
 
 Similarly to the disclosure proof request above, we define an _issuing request_ data type as follows:
 
@@ -210,6 +216,7 @@ The server listens at the following paths.
     ~~~ json
     {
         "iss": "Identity provider name",
+        "kid": "identity_provider_name",
         "sub": "issue_request",
         "iat": 1453377600,
         "iprequest": {
@@ -222,23 +229,24 @@ The server listens at the following paths.
     The fields mean the following:
 
     *   `iss` identifies the identity provider for the `irma_api_server` and the client. (`iss` is a standard JWT field, refering to the creator of the client, which in this case is, perhaps slightly confusing, the identity provider and not the IRMA issuer).
+    *   `kid` is used by the `irma_api_server` to lookup the identity provider's public key with which to verify its JWT. If this field is absent, `iss` is used instead.
     *   `sub` is a fixed field whose value should be `issue_request`.
     *   `iat` is the time of the JWT creation. The server only accepts requests younger than a certain cutoff.
     *   `data` can be any string of the issuer's choosing.
     *   `request` is an issuing request as defined above (without a nonce or context).
     *   `timeout` specifies how long, in seconds, the server should wait for a client to contact it, before considering the issuing request failed.
 
-    The server keeps a list of public keys for the verification of incoming JSON web tokens; it uses the `iss` field to lookup the appropriate public key.
-
     Of the `iprequest` field, only `request` is required, the other three are optional (the default value of `timeout` is 10 seconds). In response, the server returns a JSON object of the form
 
     ~~~ json
     {
+        "irmaqr": "issuing",
         "u": "...",
-        "v": "2.3"
+        "v": "2.0",
+        "vmax": "2.3"
     }
     ~~~
-    where `u` is the session token (`v` is a fixed value numbering the API version). It is the responsibility of the service provider to prepend the url to the api server to the session token `u`, so that the client knows where to find the api server, and then to forward this to the client.
+    where `u` is the session token, `v` is the lowest API version supported by the `irma_api_server`, and `vmax` is the highest API version supported by the `irma_api_server`. The value of `irmaqr` is always `issuing` for issuance sessions. It is the responsibility of the service provider to prepend the url to the api server to the session token `u`, so that the client knows where to find the api server, and then to forward this to the client.
 *   `GET /api/v2/issue/issueID`: if `issueID` is a valid session token (i.e., it has been assigned to an issuing request
     request at some point in the past), the server generates a nonce, puts this in the issuing request associated to this session token, and returns the issuing request.
 *   `GET /api/v2/issue/issueID/jwt`: This returns the signed JWT with which
@@ -328,17 +336,19 @@ following paths:
         "request": "..."
     }
     ~~~
-    This is the same type of request as /api/v2/verification, but the request
+    This is the same type of request as `/api/v2/verification`, but the request
     data type needs to be a signature specification instead of a disclosure proof
     request. In response, the server returns a JSON object of the form:
 
     ~~~ json
     {
+        "irmaqr": "signing",
         "u": "...",
-        "v": "2.3"
+        "v": "2.0",
+        "vmax": "2.3"
     }
     ~~~
-    where `u` is the session token, like with the disclosure proofs.
+    where `u` is the session token, `v` is the lowest API version supported by the `irma_api_server`, and `vmax` is the highest API version supported by the `irma_api_server`. The value of `irmaqr` is always `signing` for attribute-based signature sessions.
 
 *   `GET /api/v2/signature/sessionToken`: if `sessionToken` is a
     valid session token (i.e., it has been assigned to a signature specification
