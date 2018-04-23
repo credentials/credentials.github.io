@@ -3,26 +3,28 @@ layout: page
 title: Technical introduction to IRMA
 ---
 
-IRMA is a distributed, attribute-based authentication technique which is very privacy-friendly.
-This page provides a short overview on how to start using IRMA.
+IRMA is a distributed, attribute-based authentication platform which is very privacy-friendly.
+It is at its core an implementation of the [Idemix attribute-based credential scheme](https://eprint.iacr.org/2001/019).
+This page provides a short technical overview of IRMA.
 You can find more general information on the IRMA project [here](https://privacybydesign.foundation/irma-en).
 A much more detailed technical introduction to IRMA is available [here](/docs/irma.html).
+All other technical IRMA documentation can be found [here](https://privacybydesign.foundation/documentation).
 
-## IRMA user token
-Users will need an IRMA token to manage their attributes.
-Currently, there are two user token implementations of IRMA.
+## IRMA client
+Users will need an IRMA client to manage their attributes.
+Currently, there are two client implementations of IRMA.
 A [smart card version](https://github.com/privacybydesign/idemix_terminal)
 which is no longer maintained, and a much newer and more versatile Android and iOS app.
 
 ### IRMA app
-The IRMA app is currently the most up-to-date version of user-side IRMA stuff.
+The IRMA app is currently the only maintained IRMA client.
 The IRMA app is available for download directly from the [Google Play store](https://play.google.com/store/apps/details?id=org.irmacard.cardemu) and from the [Apple App Store](https://itunes.apple.com/us/app/irma-authentication/id1294092994).
 If you have no access to the Google Play store, or do not wish to get the app from there,
 you can also find a binary [here](https://privacybydesign.foundation/irma.apk).
 Alternatively, you can build the app from the publicly available [source code](https://github.com/privacybydesign/irma_mobile).
 Be aware that only an install via the app store will automatically update to the newest version.
 
-After installing the app, users can obtain their first credentials through a registration process.
+After installing the app, users obtain their first credentials through a registration process.
 After obtaining attributes, users can use them to authenticate to service providers.
 Several demos can be found on [here](https://privacybydesign.foundation/demo-en/).
 
