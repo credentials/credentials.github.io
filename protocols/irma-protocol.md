@@ -6,7 +6,7 @@ permalink: /protocols/irma-protocol/
 
 This page documents the JSON-based RESTful protocol that IRMA uses for verifying and issuing attributes, as well as for creating attribute-based signatures. This protocol is used between the [IRMA API server](https://github.com/privacybydesign/irma_api_server), which communicates with an [IRMA client](https://github.com/privacybydesign/irmago) (e.g., the [IRMA mobile app](https://github.com/privacybydesign/irma_mobile)) on the one hand, and a party wishing to verify or issue attributes, or which wants an attribute-based signature on the other hand. The `irma_api_server` exposes a JWT-driven API for requestors, which is also documented here. The main consumer of this part of the API is the [`irma_js`](https://github.com/privacybydesign/irma_js) Javascript library, for integration into websites.
 
-A comprehensive general introduction to the core concepts and functionality of IRMA can be found [here](/docs/irma.html). An overview of all IRMA technical documentation is [here](https://privacybydesign.foundation/documentation).
+A comprehensive general introduction to the core concepts and functionality of IRMA can be found [here](/docs/irma.html). An overview of all IRMA technical documentation is [here](https://privacybydesign.foundation/documentation). The [keyshare protocol](/docs/irma.html#irma-pin-codes-using-the-keyshare-server) spoken between the IRMA client and an [IRMA keyshare server](https://github.com/privacybydesign/irma_keyshare_server) is documented [here](/protocols/keyshare-protocol).
 
 # Introduction
 

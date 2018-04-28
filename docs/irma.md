@@ -165,6 +165,8 @@ Summarizing, the keyshare server increases the binding between the attributes an
 
 Each scheme manager can decide for itself whether or not to use a keyshare server. Currently, however, due to a limitation in the IRMA protocol only one keyshare server can be involved simultaneously in IRMA sessions. This will be solved in future new versions of the IRMA app and the IRMA API server.
 
+Full details on the protocol spoken between the IRMA client and an [IRMA keyshare server](https://github.com/privacybydesign/irma_keyshare_server) can be found in its [documentation](/protocols/keyshare-protocol).
+
 ## Attribute-based signatures
 
 Apart from attribute disclosure, IRMA also supports *attribute-based signatures*: a digital signature with IRMA attributes attached to it, on some document or string (more accurately this can generally be any set of bytes, though currently IRMA only support strings). The IRMA app can create such signatures with any of the attributes that it contains. The validity of such a signature can be verified using the Idemix public keys of the issuers of the used attributes, and valid attribute-based signatures can only be created using valid credentials. Contrary to [disclosure proofs](#cryptographic-entities) which are tied to an authentication session, and thus of no more use afterwards, attribute-based signatures are attached to the document that they sign, so their validity is useful as long as the signed document exist. IRMA attribute-based signatures have the same properties as conventional (non-attribute-based) [digital signatures](https://en.wikipedia.org/wiki/Digital_signature) such as non-repudiation, integrity of the signed message, and unforgeability with respect to the issuer private key. In addition, the attributes are cryptographically verifiably attached to the signature and message.
@@ -214,4 +216,5 @@ It must be mentioned that these properties only hold assuming that our software 
 * All IRMA source code is open and freely available [here](https://github.com/privacybydesign)
   * Idemix implementations in [Java](https://github.com/privacybydesign/irma_api_common) and [Go](https://github.com/mhe/gabi)
 * IRMA issuance and disclosure [protocol documentation](https://credentials.github.io/protocols/irma-protocol/)
+* IRMA keyshare [protocol documentation](https://github.com/privacybydesign/irma_keyshare_server) is documented [here](/protocols/keyshare-protocol)
 * Diagram of the interactions in a typical [IRMA session](https://credentials.github.io/#irma-session-flow)
