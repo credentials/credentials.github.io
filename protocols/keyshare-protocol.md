@@ -6,6 +6,19 @@ permalink: /protocols/keyshare-protocol/
 
 This document describes the goals and details of the IRMA keyshare protocol.
 
+## Table of Contents
+
+* [Introduction](#introduction)
+    * [Goals](#goals)
+    * [IRMA secret keys and keyshares](#irma-secret-keys-and-keyshares)
+    * [Zero-knowledge proofs of hidden attributes](#zero-knowledge-proofs-of-hidden-attributes)
+    * [Splitting the secret key across the user and keyshare server](#splitting-the-secret-key-across-the-user-and-keyshare-server)
+* [The protocol](#the-protocol)
+    * [Overview](#overview)
+    * [Registration](#registration)
+    * [Authentication](#authentication)
+    * [The keyshare protocol](#the-keyshare-protocol)
+
 ## Introduction
 
 The [IRMA mobile app](https://github.com/privacybydesign/irma_mobile) allows users to obtain and disclose [IRMA attributes](https://credentials.github.io/docs/irma.html#cryptographic-entities), as well as attach them to signed statements. Before such an IRMA session proceeds, the IRMA app may ask the user to enter her IRMA PIN code so that the [requestor](https://credentials.github.io/docs/irma.html#participants) can be sure that it is indeed the attribute owner initiating the session (as opposed to, e.g., a thief of the user's phone). The verification of the correctness of the IRMA PIN code, and preventing the session from happening when it is not, is the responsibility of the [IRMA keyshare server](https://github.com/privacybydesign/irma_keyshare_server). In order to do this, it interacts with the IRMA app and possibly the IRMA API server in a protocol that we call the *keyshare protocol*. This protocol is documented here.
