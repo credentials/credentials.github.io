@@ -93,7 +93,7 @@ In order to lessen linkability issues (see the [security properties](#irma-secur
 
 #### The secret key attribute
 
-The first attribute of any IRMA credential is always a 32-bit integer which is called the user's *secret key*. The user's IRMA app randomly chooses and stores this integer when it is run for the first time. Whenever it receives a new credential, the app ensures that this number is used as the first attribute, so that all credentials that the app manages share this integer as their first attribute. Contrary to the metadata attribute this attribute is never disclosed; it is even kept hidden from the issuer during issuance. When the user discloses attributes that come from multiple credentials, the proof of knowledge that the IRMA app calculates and sends to the verifier prove multiple facts:
+The first attribute of any IRMA credential is always a 256-bit integer which is called the user's *secret key*. The user's IRMA app randomly chooses and stores this integer when it is run for the first time. Whenever it receives a new credential, the app ensures that this number is used as the first attribute, so that all credentials that the app manages share this integer as their first attribute. Contrary to the metadata attribute this attribute is never disclosed; it is even kept hidden from the issuer during issuance. When the user discloses attributes that come from multiple credentials, the proof of knowledge that the IRMA app calculates and sends to the verifier prove multiple facts:
 
 * The app knows a valid issuer signature over all credentials from which attributes are currently being disclosed,
 * The first attribute from all of these credentials coincide.
