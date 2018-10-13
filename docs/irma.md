@@ -196,7 +196,7 @@ Eavesdropppers cannot perform replay attacks
 :    When verifying attributes, the verifier first sends a number of random bits called the nonce to the IRMA app, and the IRMA app's reply containing the disclosed attributes and the proofs of knowledge has to fit on this nonce in a precise fashion. Assuming that the verifier never reuses nonces, this means that an eavesdropper cannot replay an IRMA disclosure.
 
 Verifiers cannot perform replay attacks
-:    Even if all attributes were disclosed (and the secret key is in fact never disclosed), the IRMA app does not send a complete copy of the credential's signature to the verifier; instead parts of it are hidden using proofs of knowledge. This means that verifiers cannot use what they learn in IRMA disclosures to disclose the received attributes to other verifiers.
+:    Even if all attributes were disclosed (and the secret key is in fact never disclosed), the IRMA app does not send a complete copy of the credential's signature to the verifier; instead parts of it are hidden using proofs of knowledge. This means that verifiers cannot use what they learn in IRMA disclosures to disclose the received attributes to other verifiers, acting as an IRMA app possessing the attributes that were disclosed to it.
 
 No impersonation attacks
 :    The credentials and attributes reside in the IRMA app installation of the users. This is contrary to other identity management systems such as for example "Log in with Facebook": when someone presses such a Facebook login button on some website, it is really Facebook who authenticates on that website on behalf of the user. Consequentially, Facebook can potentially authenticate itself as any of its users to such websites. This is not possible in IRMA.
