@@ -56,9 +56,9 @@ We briefly review how zero-knowledge proofs are used in IRMA to hide attributes.
    1. computes the *challenge* $$c = H(P, W, \eta)$$, where $$H$$ is a hash function (e.g., SHA256)
    1. computes the *response* $$s = cm + w$$,
    1. sends the tuple $$(c, s)$$ to the verifier.
-1. The verifier computes $$W' = R^sS^{-c}$$ and $$c' = H(P, W', \eta)$$, and then verifies that $$c = c'$$.
+1. The verifier computes $$W' = R^sP^{-c}$$ and $$c' = H(P, W', \eta)$$, and then verifies that $$c = c'$$.
 
-If $$c$$ and $$z$$ are correctly computed, then $$W' = R^sS^{-c} = R^{cm+w}R^{-mc} = R^w = W$$, so that the verification equation $$c' = H(P, W', \eta) = H(P, W, \eta) = c$$ indeed holds. Additionally, when correctly implemented this protocol guarantees the following:
+If $$c$$ and $$z$$ are correctly computed, then $$W' = R^sP^{-c} = R^{cm+w}R^{-mc} = R^w = W$$, so that the verification equation $$c' = H(P, W', \eta) = H(P, W, \eta) = c$$ indeed holds. Additionally, when correctly implemented this protocol guarantees the following:
 * The user indeed knows $$m$$ (more precisely: if the user does not know the number $$m$$ then it cannot make the verifier accept),
 * The verifier learns nothing about the value or properties of $$m$$ that it did not already know, except that it is known to the user.
 
