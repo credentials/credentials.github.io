@@ -1,8 +1,11 @@
 ---
 layout: page
-title: Technical introduction to IRMA
+title: IRMA documentation
 ---
 
+The IRMA documentation can be found here: https://irma.app/docs
+
+<!---
 IRMA is a distributed, attribute-based authentication platform which is very privacy-friendly.
 It is at its core an implementation of the [Idemix attribute-based credential scheme](https://eprint.iacr.org/2001/019).
 This page provides a short technical overview of IRMA.
@@ -68,11 +71,6 @@ Explanation of the steps:
   6. The API server informs `irma_js` of the result (in the case of a successful disclosure session, this includes a JWT containing the disclosed attributes)
   7. `irma_js` informs the requestor via the callbacks provided in step 1, including the disclosed attributes in verification sessions
 
-<!---
-## Adding new credentials
-New attributes can be added to the IRMA configuration project.
---->
-
 ### Project descriptions
 
  * [`irma_mobile`](https://github.com/privacybydesign/irma_mobile): A cross-platform iOS and Android mobile IRMA app,
@@ -85,3 +83,5 @@ New attributes can be added to the IRMA configuration project.
 
 ## Support or Contact
 Having trouble with the IRMA usage or development? Contact `irma 'at' privacybydesign.foundation` and we’ll help you sort it out.
+
+--->
