@@ -3,7 +3,7 @@ layout: page
 title: IRMA documentation
 ---
 
-The IRMA documentation can be found here: https://irma.app/docs
+The IRMA documentation can be found here: [https://irma.app/docs](https://irma.app/docs)
 
 <!---
 IRMA is a distributed, attribute-based authentication platform which is very privacy-friendly.
