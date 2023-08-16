@@ -1,0 +1,139 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "org.irmacard.api",
+    "module": "irma_api_common",
+    "version": "2.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "irma_api_common-2.0.0.jar",
+          "url": "irma_api_common-2.0.0.jar",
+          "size": 178163,
+          "sha512": "e807ef5bf1d3e8cebc78713156fd7b7da5638e8b986bac142cd60355fa7ace913c302956b46b1f40276ffca6582d8c778e988aeb68a42957fec8b3767e39aa45",
+          "sha256": "802519ae0bfd8ede0b41eb706345faece218a909db351055f26cbdbb10561b26",
+          "sha1": "971b433a154e82410790cf11ffc2c32ca70ca67b",
+          "md5": "8702e2ae8484ea5ba631e7959dc384bc"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.google.code.gson",
+          "module": "gson",
+          "version": {
+            "requires": "2.8.9"
+          }
+        },
+        {
+          "group": "com.google.http-client",
+          "module": "google-http-client",
+          "version": {
+            "requires": "1.43.3"
+          }
+        },
+        {
+          "group": "commons-codec",
+          "module": "commons-codec",
+          "version": {
+            "requires": "1.15"
+          }
+        },
+        {
+          "group": "commons-io",
+          "module": "commons-io",
+          "version": {
+            "requires": "2.7"
+          }
+        },
+        {
+          "group": "de.henku.jpaillier",
+          "module": "jpaillier",
+          "version": {
+            "requires": "0.1.2"
+          }
+        },
+        {
+          "group": "io.jsonwebtoken",
+          "module": "jjwt",
+          "version": {
+            "requires": "0.9.1"
+          }
+        },
+        {
+          "group": "org.apache.commons",
+          "module": "commons-lang3",
+          "version": {
+            "requires": "3.7"
+          }
+        },
+        {
+          "group": "org.bouncycastle",
+          "module": "bcpkix-jdk15on",
+          "version": {
+            "requires": "1.70"
+          }
+        },
+        {
+          "group": "org.bouncycastle",
+          "module": "bcprov-jdk15on",
+          "version": {
+            "requires": "1.67"
+          }
+        },
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "1.7.25"
+          }
+        },
+        {
+          "group": "javax.xml.bind",
+          "module": "jaxb-api",
+          "version": {
+            "requires": "2.3.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "irma_api_common-2.0.0.jar",
+          "url": "irma_api_common-2.0.0.jar",
+          "size": 178163,
+          "sha512": "e807ef5bf1d3e8cebc78713156fd7b7da5638e8b986bac142cd60355fa7ace913c302956b46b1f40276ffca6582d8c778e988aeb68a42957fec8b3767e39aa45",
+          "sha256": "802519ae0bfd8ede0b41eb706345faece218a909db351055f26cbdbb10561b26",
+          "sha1": "971b433a154e82410790cf11ffc2c32ca70ca67b",
+          "md5": "8702e2ae8484ea5ba631e7959dc384bc"
+        }
+      ]
+    }
+  ]
+}
